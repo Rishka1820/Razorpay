@@ -165,7 +165,6 @@ export default function ChatSim() {
             <button className="iconbtn" aria-label="Clear selection" onClick={() => setSel([])}><Icon n="x" /></button>
             <h1>{sel.length} selected</h1>
             <button className="iconbtn" aria-label="Copy" onClick={copySel}><Icon n="copy" /></button>
-            <button className="iconbtn" aria-label="Send to Orders" onClick={sendToOrders} style={{ gap: 6, fontSize: 13, fontWeight: 600 }}><Icon n="share" /></button>
           </>
         ) : (
           <>
@@ -206,10 +205,7 @@ export default function ChatSim() {
         <div ref={endRef} style={{ height: 1, scrollMarginBottom: 110 }} />
       </div>
       <div style={{ background: '#f0f2f5', padding: '10px 14px calc(10px + env(safe-area-inset-bottom, 0px))', fontSize: 12.5, color: '#51606b', position: 'sticky', bottom: 0 }}>
-        {!chat.live && (
-          <button className="btn" style={{ marginBottom: 8 }} onClick={sendToOrders}><Icon n="share" />{sel.length ? 'Send selected messages to Orders' : 'Send this chat to Orders'}</button>
-        )}
-        {chat.live ? 'Messages the app sends appear here, and so do the customer’s replies and payments. Tap a link to open the customer’s page.' : 'Tap messages to choose only some of them. ▶ replays the conversation.'}
+        {chat.live ? 'Messages the app sends appear here, and so do the customer’s replies and payments. Tap a link to open the customer’s page.' : 'Tap messages to select them, then copy and paste them into OrderBook.'}
       </div>
       {toast && <div className="toast">{toast}</div>}
     </div>
