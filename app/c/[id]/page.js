@@ -77,7 +77,7 @@ export default function CustomerPage({ params }) {
           <div className="card col">
             <div className="bold">{t('Check and accept your order')}</div>
             <div className="small" style={{ background: '#f6f8fc', borderRadius: 10, padding: 10 }}>{o.terms}</div>
-            <div className="small muted">{t('Your payment plan')}: {d.steps.map((s, i) => `${t(s.name)} ${inr(d.cum[i] - (d.cum[i - 1] || 0))}`).join(' · ')}</div>
+            <div className="small muted">{t('Your payment plan')}: {d.steps.map((s, i) => `${t(s.name)} ${inr(d.cum[i] - (d.cum[i - 1] || 0))}${o.stageDates?.[s.key] ? ` (${t('by')} ${fmtDate(o.stageDates[s.key])})` : ''}`).join(' · ')}</div>
             <button className="btn" disabled={busy} onClick={() => act('accept')}>{busy ? <Spinner /> : <Icon n="check" />}{t('Accept order')}</button>
             <div className="tiny muted">{t('Your acceptance is saved with the date and time.')}</div>
           </div>
@@ -111,6 +111,8 @@ export default function CustomerPage({ params }) {
         {/* 3. pay */}
         {r && o.stage !== 'cancelled' && (
           <div className="card col" style={{ borderColor: '#bcd5fb', background: '#f2f7ff' }}>
+            {r.photo && <div className="photo"><img src={r.photo} alt="Progress on your order" /></div>}
+            {r.photo && <div className="small muted">{t('How your order looks now')}</div>}
             <div className="tiny muted">{t('Payment due')} · {t(r.stepName)}</div>
             <div className="big">{inr(r.amount)}</div>
             <a className="btn" href={r.url}><Icon n="rupee" />{t('Pay {amt}', { amt: inr(r.amount) })}</a>

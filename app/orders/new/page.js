@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Field, Icon, Pill, Shell, Spinner, useApp } from '@/components/kit';
 import { api, fileToDataUrl } from '@/lib/client';
-import { PLANS, cumTargets } from '@/lib/model';
+import { PLANS, cumTargets, defaultStageDates } from '@/lib/model';
 import { inr, prettyPhone } from '@/lib/format';
 
 const EMPTY = { name: '', phone: '', item: '', total: '', advance: '', advMethod: 'cash', advRef: '', deliveryDate: '', plan: '50-50', ai: {}, engine: null };
@@ -88,6 +88,7 @@ export default function NewOrder() {
           total: Number(form.total),
           plan: form.plan,
           deliveryDate: form.deliveryDate || null,
+          stageDates: form.plan === '40-30-30' ? { frame_ready: form.midDate ?? defaultStageDates(form.plan, form.deliveryDate).frame_ready } : {},
           source: form.source || 'manual',
           advance: adv > 0 ? { amount: adv, method: form.advMethod, ref: form.advRef } : null,
           createMs: Date.now() - t0.current,
@@ -178,6 +179,14 @@ export default function NewOrder() {
               </div>
             )}
           </div>
+
+          {form.plan === '40-30-30' && form.deliveryDate && (
+            <div className="card col">
+              <div className="bold">{t('Midway payment date')}</div>
+              <div className="small muted">{t('Agreed with the customer now. On this date the app asks you to collect it. You can also ask earlier.')}</div>
+              <input id="mid" type="date" value={form.midDate ?? (defaultStageDates(form.plan, form.deliveryDate).frame_ready || '')} onChange={(e) => set('midDate', e.target.value)} />
+            </div>
+          )}
 
           <div className="card col">
             <div className="row between"><div className="bold">{t('Advance already received?')}</div>{form.ai.advance && <span className="ai">AI</span>}</div>

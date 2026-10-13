@@ -9,6 +9,8 @@ export function CollectSheet({ c }) {
   const { o, d, t, toast, busy, act, setSheet, share, copyLink } = c;
   const r = o.activeRequest;
   const stale = r && r.amount !== d.dueNow;
+  const [photo, setPhoto] = useState(null);
+  const canPhoto = o.stage === 'making' && d.step.key !== 'advance';
   return (
     <Sheet title={t('Collect payment')} onClose={() => setSheet(null)}>
       <div className="card col summary">
@@ -34,9 +36,19 @@ export function CollectSheet({ c }) {
         </div>
       ) : (
         d.dueNow > 0 && (
-          <button className="btn" disabled={busy} onClick={() => act('request_payment', {}, 'Payment request created')}>
-            {busy ? <Spinner /> : <Icon n="link" />}{t('Create payment link for {amt}', { amt: inr(d.dueNow) })}
-          </button>
+          <>
+            {canPhoto && (
+              <div className="col" style={{ gap: 8 }}>
+                {photo && <div className="photo"><img src={photo} alt="Progress" /></div>}
+                <label className="btn ghost" htmlFor="pphoto" style={{ cursor: 'pointer' }}><Icon n="camera" />{photo ? t('Retake progress photo') : t('Add a progress photo')}</label>
+                <input id="pphoto" type="file" accept="image/*" capture="environment" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) setPhoto(await fileToDataUrl(f, 900, 0.7)); }} />
+                <div className="tiny muted">{t('Optional. Your customer sees how the work looks next to the amount you ask for.')}</div>
+              </div>
+            )}
+            <button className="btn" disabled={busy} onClick={() => act('request_payment', { photo }, 'Payment request created')}>
+              {busy ? <Spinner /> : <Icon n="link" />}{t('Create payment link for {amt}', { amt: inr(d.dueNow) })}
+            </button>
+          </>
         )
       )}
       <button className="btn ghost" onClick={() => toast(t('A QR code for the exact amount works in live mode. It isn\'t shown in this prototype.'))}><Icon n="qr" />{t('Show QR for this amount')}</button>

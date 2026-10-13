@@ -121,7 +121,9 @@ export function eventLine(e, t, o) {
     case 'version_accepted': return t('Customer accepted the change: {from} to {to}', { from: A(d.from), to: A(d.to) });
     case 'version_declined': return t('Customer declined the change');
     case 'balance_recalculated': return t('Amount due recalculated: {was} to {now}', { was: A(d.was), now: A(d.now) });
-    case 'milestone_unlocked': return t('{name} stage reached: {amt} now due', { name: t(d.name), amt: A(d.amount) });
+    case 'progress_photo': return t('Progress photo sent with the {step} request', { step: t(d.step) });
+    case 'stage_date_set': return t('{name} payment date set to {date}', { name: t(d.name), date: fmtDate(d.date) });
+    case 'milestone_unlocked': return t(d.byDate ? '{name} payment date reached: {amt} now due' : '{name} stage reached: {amt} now due', { name: t(d.name), amt: A(d.amount) });
     case 'ready': return t('Marked ready, photo {p}', { p: t(d.hasPhoto ? 'added' : 'not added') });
     case 'fulfilment_set': return t('Delivery set to: {m}', { m: t(d.mode === 'cod' ? 'Pay on delivery' : d.mode === 'pickup' ? 'Pickup' : 'Pay before dispatch') });
     case 'dispatched': return d.cod ? t('Dispatched with {c}. {amt} to be paid on delivery', { c: d.courier, amt: A(d.cod) }) : t('Dispatched with {c}', { c: d.courier });

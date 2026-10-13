@@ -184,7 +184,7 @@ export function Shell({ title, sub, back, right, active, nav = true, children })
         <nav className="nav" aria-label="Main">
           <Link href="/" className={active === 'home' ? 'on' : ''}><Icon n="home" />{t('Home')}</Link>
           <button onClick={() => stub('Payments')}><Icon n="swap" />{t('Payments')}</button>
-          <Link href="/products" className={active === 'products' ? 'on' : ''}><Icon n="grid" />{t('Products')}<span className="new">NEW</span></Link>
+          <Link href="/products" className={active === 'products' ? 'on' : ''}><Icon n="grid" />{t('Products')}</Link>
           <button onClick={() => stub('Support')}><Icon n="help" />{t('Support')}</button>
           <Link href="/more" className={active === 'more' ? 'on' : ''}><Icon n="user" />{t('Account')}</Link>
         </nav>

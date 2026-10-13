@@ -225,6 +225,7 @@ export default function OrderPage({ params }) {
           ) : (
             <div className="small muted">{t('Nothing is due right now.')}</div>
           )}
+          {d.nextStep && d.dueNow === 0 && d.nextDate && <div className="small muted">{t('{name} payment is due on {date}. You can ask for it earlier if the work gets there sooner.', { name: t(d.nextStep.name), date: fmtDate(d.nextDate) })}</div>}
           {d.nextStep && d.dueNow === 0 && (
             <button className="btn soft" disabled={busy} onClick={() => act('unlock_next', {}, 'Next payment is now due')}>
               {t('{name} reached: ask for {amt}', { name: t(d.nextStep.name), amt: inr(d.nextAmount) })}
