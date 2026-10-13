@@ -170,3 +170,33 @@ h1, h2, h3, p { margin: 0; }
 .spin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.4); border-top-color: #fff; animation: sp 0.8s linear infinite; }
 @keyframes sp { to { transform: rotate(360deg); } }
 .empty { text-align: center; padding: 28px 12px; color: var(--muted); }
+
+/* home shortcuts, strip and rows (Razorpay app pattern) */
+.greet { display: flex; align-items: center; gap: 12px; }
+.avatar-lg { width: 40px; height: 40px; border-radius: 50%; background: var(--info-bg); color: var(--blue); display: grid; place-items: center; font-weight: 600; font-size: 14px; flex: none; }
+.strip { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #fff; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+.strip .t1 { font-size: 12px; line-height: 17px; color: rgba(255, 255, 255, 0.75); }
+.strip .t2 { font-size: 16px; line-height: 22px; font-weight: 600; }
+.strip a, .strip button { background: #fff; color: var(--ink); border: 0; border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 14px; display: inline-flex; gap: 6px; align-items: center; cursor: pointer; white-space: nowrap; }
+.shortcuts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 2px 0; }
+.shortcuts button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; font-weight: 500; text-align: center; cursor: pointer; position: relative; color: var(--ink); }
+.shortcuts .ic { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 1px solid var(--line); display: grid; place-items: center; color: var(--ink); }
+.shortcuts .hot .ic { background: var(--blue); border-color: var(--blue); color: #fff; }
+.shortcuts .tag { position: absolute; top: -6px; left: calc(50% + 10px); background: var(--blue); color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 8px; font-weight: 700; }
+.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pcard { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 6px; text-align: left; cursor: pointer; position: relative; min-height: 132px; }
+.pcard .ic { width: 40px; height: 40px; border-radius: 50%; background: #f1f2f3; display: grid; place-items: center; color: var(--ink); }
+.pcard .h { font-weight: 600; font-size: 16px; line-height: 22px; }
+.pcard .d { color: var(--muted); font-size: 13px; line-height: 18px; }
+.pcard.hot { border-color: #b9d1fb; background: #f5f9ff; grid-column: 1 / -1; min-height: 0; }
+.pcard.hot .ic { background: var(--blue); color: #fff; }
+.pcard .tag { position: absolute; top: 12px; right: 12px; background: var(--blue); color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 8px; font-weight: 700; }
+.rows { background: #fff; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.rows .r { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.rows .r:last-child { border-bottom: 0; }
+.rows .ic { width: 40px; height: 40px; border-radius: 12px; background: #f1f2f3; display: grid; place-items: center; color: var(--ink); flex: none; }
+.rows .k { font-size: 12px; line-height: 17px; color: var(--muted); }
+.rows .v { font-size: 14px; line-height: 20px; font-weight: 500; overflow-wrap: anywhere; }
+.rows .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+.eyebrow { font-size: 12px; line-height: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); }
+.ph { font-size: 24px; line-height: 30px; font-weight: 600; padding: 2px 2px 0; }

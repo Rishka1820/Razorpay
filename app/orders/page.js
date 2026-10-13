@@ -37,7 +37,7 @@ export default function Orders() {
   const received = orders.flatMap((o) => o.payments).filter((p) => dayOf(p.at) === today).reduce((a, p) => a + p.amount, 0);
 
   return (
-    <Shell active="orders" title={t('Orders')} back="/">
+    <Shell active="products" title={t('Orders')} back="/">
       <div className="grid2">
         <div className="card">
           <div className="tiny muted">{t('To collect today')}</div>

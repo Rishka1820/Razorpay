@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Field, Icon, Pill, Sheet, Spinner } from '@/components/kit';
 import { fileToDataUrl } from '@/lib/client';
 import { cumTargets, frozenAfter } from '@/lib/model';
-import { inr } from '@/lib/format';
+import { inr, prettyPhone } from '@/lib/format';
 
 export function CollectSheet({ c }) {
   const { o, d, t, toast, busy, act, setSheet, share, copyLink } = c;
@@ -11,20 +11,22 @@ export function CollectSheet({ c }) {
   const stale = r && r.amount !== d.dueNow;
   return (
     <Sheet title={t('Collect payment')} onClose={() => setSheet(null)}>
-      <div className="card">
-        <div className="tiny muted">{t('Due now')} · {t(d.step.name)}</div>
-        <div className="big">{inr(d.dueNow)}</div>
-        <div className="small muted">{t('Paid {paid} of {total}', { paid: inr(d.paid), total: inr(o.total) })}</div>
+      <div className="card col summary">
+        <div className="eyebrow">{r ? t('Requested') : t('Due now')} · {t(d.step.name)}</div>
+        <div className="big">{inr(r ? r.amount : d.dueNow)}</div>
+        <div className="small muted">{t('from {name}', { name: o.customer.name })} · {t('Paid {paid} of {total}', { paid: inr(d.paid), total: inr(o.total) })}</div>
       </div>
       {d.dueNow <= 0 && <div className="note ok">{t('Nothing is due. This was just paid.')}</div>}
       {r ? (
-        <div className="card col">
-          <div className="row between"><span className="bold">{t('Open request')} · {inr(r.amount)}</span><Pill tone="info">{t('Waiting for payment')}</Pill></div>
-          <div className="linkbox">{r.url}</div>
+        <div className="col">
+          <div className="rows">
+            <div className="r"><span className="ic"><Icon n="link" s={18} /></span><div className="grow"><div className="k">{t('Link')}</div><div className="v mono">{r.url.replace(/^https?:\/\//, '')}</div></div><button className="btn ghost sm" onClick={() => copyLink(r.url)}><Icon n="copy" s={16} />{t('Copy')}</button></div>
+            <div className="r"><span className="ic"><Icon n="user" s={18} /></span><div className="grow"><div className="k">{t('Customer')}</div><div className="v">{o.customer.name} · {prettyPhone(o.customer.phone) || t('No number')}</div></div></div>
+            <div className="r"><span className="ic"><Icon n="doc" s={18} /></span><div className="grow"><div className="k">{t('Description')}</div><div className="v">{o.item} · {t(r.stepName)}</div></div></div>
+          </div>
           {stale && <div className="note warn">{t('This request is for an old amount. Replace it so the customer pays {amt}.', { amt: inr(d.dueNow) })}</div>}
           <button className="btn" onClick={() => share('pay')}><Icon n="share" />{t('Send on WhatsApp')}</button>
           <div className="btnrow">
-            <button className="btn ghost" onClick={() => copyLink(r.url)}><Icon n="copy" s={16} />{t('Copy link')}</button>
             <a className="btn ghost" href={r.url} target="_blank" rel="noreferrer">{t('Open as customer')}</a>
           </div>
           {stale && <button className="btn soft" disabled={busy} onClick={() => act('request_payment', {}, 'Request replaced')}>{t('Replace with {amt}', { amt: inr(d.dueNow) })}</button>}

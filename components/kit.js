@@ -68,6 +68,9 @@ const PATHS = {
   clock: 'M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',
   user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0',
   x: 'M6 6l12 12M18 6L6 18',
+  grid: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
+  help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01',
+  swap: 'M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4',
   play: 'M7 5l12 7-12 7z',
 };
 
@@ -111,9 +114,9 @@ export function Shell({ title, sub, back, right, active, nav = true, children })
       {nav && (
         <nav className="nav" aria-label="Main">
           <Link href="/" className={active === 'home' ? 'on' : ''}><Icon n="home" />{t('Home')}</Link>
-          <button onClick={() => stub('Payments')}><Icon n="rupee" />{t('Payments')}</button>
-          <Link href="/orders" className={active === 'orders' ? 'on' : ''}><Icon n="list" />{t('Orders')}<span className="new">NEW</span></Link>
-          <button onClick={() => stub('Support')}><Icon n="chat" />{t('Support')}</button>
+          <button onClick={() => stub('Payments')}><Icon n="swap" />{t('Payments')}</button>
+          <Link href="/products" className={active === 'products' ? 'on' : ''}><Icon n="grid" />{t('Products')}<span className="new">NEW</span></Link>
+          <button onClick={() => stub('Support')}><Icon n="help" />{t('Support')}</button>
           <Link href="/more" className={active === 'more' ? 'on' : ''}><Icon n="user" />{t('Account')}</Link>
         </nav>
       )}
