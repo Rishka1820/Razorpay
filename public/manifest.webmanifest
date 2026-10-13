@@ -1,6 +1,6 @@
 {
-  "name": "Razorpay Orders (concept prototype)",
-  "short_name": "Orders",
+  "name": "Razorpay OrderBook",
+  "short_name": "OrderBook",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -4,6 +4,59 @@ import Link from 'next/link';
 import { LangSwitch, Pill, Shell, Spinner, useApp } from '@/components/kit';
 import { api, getDemoChat, setDemoChat, usePoll } from '@/lib/client';
 
+
+function b64(k) {
+  const pad = '='.repeat((4 - (k.length % 4)) % 4);
+  const raw = atob((k + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+
+function PushCard() {
+  const { t, toast } = useApp();
+  const [state, setState] = useState('checking');
+  useEffect(() => {
+    (async () => {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return setState('unsupported');
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      const sub = await reg.pushManager.getSubscription();
+      setState(sub && Notification.permission === 'granted' ? 'on' : Notification.permission === 'denied' ? 'blocked' : 'off');
+    })().catch(() => setState('unsupported'));
+  }, []);
+  async function turnOn() {
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return setState(perm === 'denied' ? 'blocked' : 'off');
+      const reg = await navigator.serviceWorker.ready;
+      const { key } = await api('/api/push/key');
+      const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(key) }));
+      await api('/api/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } });
+      await api('/api/push/test', { method: 'POST', body: {} });
+      setState('on');
+    } catch (e) {
+      toast(e.message || t('Could not turn on notifications'));
+    }
+  }
+  async function turnOff() {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      await api('/api/push/subscribe', { method: 'DELETE', body: { endpoint: sub.endpoint } });
+      await sub.unsubscribe();
+    }
+    setState('off');
+  }
+  return (
+    <div className="card col">
+      <div className="sec" style={{ padding: 0 }}><span>{t('Phone notifications')}</span></div>
+      <div className="small muted">{t('Get a notification when a payment arrives, a customer approves or asks for a change, or a payment date is reached. It works even when the app is closed.')}</div>
+      {state === 'on' && <button className="btn ghost" onClick={turnOff}>{t('Turn off notifications')}</button>}
+      {state === 'off' && <button className="btn" onClick={turnOn}>{t('Turn on notifications')}</button>}
+      {state === 'blocked' && <div className="note warn">{t('Notifications are blocked for this app. Allow them in your browser or phone settings.')}</div>}
+      {state === 'unsupported' && <div className="note warn">{t('On iPhone, add this app to your Home Screen first, then turn notifications on.')}</div>}
+    </div>
+  );
+}
+
 export default function More() {
   const { t, role, setRole, toast } = useApp();
   const { data: status } = usePoll('/api/status');
@@ -33,6 +86,8 @@ export default function More() {
         </div>
         <div className="small muted">{t('Staff can see today\'s list, collect payments and dispatch. Only the owner can change prices, cancel orders and refund.')}</div>
       </div>
+
+      <PushCard />
 
       <div className="card col">
         <div className="sec" style={{ padding: 0 }}><span>{t('When I tap Send on WhatsApp')}</span></div>
