@@ -18,7 +18,6 @@ export default function Products() {
       <div className="sec"><span>{t('Share and collect')}</span></div>
       <div className="pgrid">
         <button className="pcard hot" onClick={() => router.push('/orders')}>
-          <span className="tag">NEW</span>
           <span className="ic"><Icon n="list" s={20} /></span>
           <span className="h">{t('Orders')}</span>
           <span className="d">{t('Made to order? Keep the advance, stage payments and balance on one order, with changes your customer approves.')}</span>

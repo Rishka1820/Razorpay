@@ -44,7 +44,6 @@ export default function Home() {
           <div>
             <div className="small muted">{t('Received today')}</div>
             <div className="big" style={{ fontSize: 26, lineHeight: '32px' }}>{inr(receivedToday)}</div>
-            <div className="tiny muted">{t('Razorpay and payments you recorded')}</div>
           </div>
           <div>
             <div className="small muted">{t('Total dues')}</div>
@@ -64,8 +63,7 @@ export default function Home() {
       <div className="shortcuts">
         {shortcuts.map((x) => (
           <button key={x.label} className={x.hot ? 'hot' : ''} onClick={x.on}>
-            {x.hot && <span className="tag">NEW</span>}
-            <span className="ic"><Icon n={x.n} s={20} /></span>
+                        <span className="ic"><Icon n={x.n} s={20} /></span>
             {t(x.label)}
           </button>
         ))}

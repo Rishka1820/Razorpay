@@ -53,7 +53,7 @@ export function Steps({ o }) {
         {segs.map((s, i) => <div key={i} className={s.cls} style={s.style} />)}
       </div>
       <div className="steplabels" style={cols}>
-        {segs.map((s, i) => <div key={i}>{t(s.name)} · {inr(s.to)}</div>)}
+        {segs.map((s, i) => <div key={i}>{t(s.name)}<br /><b style={{ fontWeight: 600 }}>{inr(s.to)}</b></div>)}
       </div>
     </div>
   );

@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Demo stage</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:1920px;height:1080px;overflow:hidden;font-family:'Inter Variable',Inter,system-ui,sans-serif}
+body{transition:background 0.8s;background:linear-gradient(180deg,#f4f7ff 0%,#dce8ff 100%);color:#072350}
+body.dark{background:linear-gradient(180deg,#050b2e 0%,#0b1f6b 60%,#1364f1 130%);color:#fff}
+.brand{position:absolute;top:36px;right:56px;font-weight:800;font-style:italic;font-size:30px;letter-spacing:-.02em}
+.brand i{display:inline-block;width:20px;height:24px;background:#1364f1;transform:skewX(-14deg);margin-right:8px;vertical-align:-3px;border-radius:2px}
+.dark .brand{color:#fff}
+h1{position:absolute;top:70px;left:0;right:0;margin:0;text-align:center;font-size:62px;line-height:70px;font-weight:700;letter-spacing:-.02em;transition:opacity .4s}
+h1 em{font-style:normal;color:#1364f1}.dark h1 em{color:#6ea2ff}
+.sub{position:absolute;top:158px;left:0;right:0;text-align:center;font-size:28px;opacity:.75;transition:opacity .4s}
+.phones{position:absolute;top:240px;left:0;right:0;display:flex;justify-content:center;gap:90px;transition:opacity .5s}
+.ph{width:420px;height:810px;border-radius:46px;background:#0b0f1e;padding:14px;box-shadow:0 30px 80px rgba(7,35,80,.35);position:relative}
+.ph iframe{width:392px;height:782px;border:0;border-radius:34px;background:#fff;display:block}
+.lbl{position:absolute;top:-44px;left:0;right:0;text-align:center;font-size:24px;font-weight:600;opacity:.85}
+.cap{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-size:30px;font-weight:600}
+.cap span{background:rgba(7,35,80,.88);color:#fff;padding:12px 26px;border-radius:10px}
+#persona{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:30px;text-align:center;padding:0 200px}
+#persona .av{width:150px;height:150px;border-radius:50%;background:#1364f1;display:grid;place-items:center;font-size:72px;font-weight:700}
+#persona h2{margin:0;font-size:76px;letter-spacing:-.02em}
+#persona p{margin:0;font-size:38px;opacity:.85;line-height:52px}
+#persona .bub{background:#fff;color:#072350;border-radius:30px;padding:26px 44px;font-size:42px;font-weight:700;line-height:54px;max-width:1100px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+#end{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:28px;text-align:center}
+#end h2{margin:0;font-size:84px;letter-spacing:-.02em}#end p{font-size:38px;margin:0;opacity:.85}
+</style></head><body>
+<div class="brand"><i></i>Orders for Razorpay</div>
+<h1 id="h"></h1><div class="sub" id="s"></div>
+<div class="phones" id="ph">
+  <div class="ph"><div class="lbl">Customer chat</div><iframe id="left" name="left" src="/chat"></iframe></div>
+  <div class="ph"><div class="lbl">Seller on the Razorpay app</div><iframe id="right" name="right" src="/"></iframe></div>
+</div>
+<div class="cap" id="c"></div>
+<div id="persona"></div><div id="end"></div>
+<script>
+const $=id=>document.getElementById(id);
+window.scene=(h,s,dark)=>{document.body.classList.toggle('dark',!!dark);$('h').innerHTML=h||'';$('s').textContent=s||''};
+window.cap=t=>{$('c').innerHTML=t?'<span>'+t+'</span>':''};
+window.card=(html)=>{const p=$('persona');p.innerHTML=html||'';p.style.display=html?'flex':'none';$('ph').style.opacity=html?0:1;$('h').style.opacity=html?0:1;$('s').style.opacity=html?0:1;$('c').style.opacity=html?0:1};
+window.endcard=(html)=>{const p=$('end');p.innerHTML=html||'';p.style.display=html?'flex':'none';$('ph').style.opacity=html?0:1;$('h').style.opacity=html?0:1;$('s').style.opacity=html?0:1;$('c').style.opacity=html?0:1};
+</script></body></html>
