@@ -51,20 +51,12 @@ h1, h2, h3, p { margin: 0; }
 .nav { position: sticky; bottom: 0; z-index: 20; background: #fff; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); }
 .nav button, .nav a { background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; line-height: 16px; font-weight: 500; color: var(--muted); padding: 6px 0; position: relative; cursor: pointer; }
 .nav .on { color: var(--blue); font-weight: 600; }
-.nav .new { position: absolute; top: 0; left: calc(50% + 8px); background: var(--blue); color: #fff; font-size: 8.5px; font-weight: 700; padding: 1px 4px; border-radius: 6px; letter-spacing: 0.04em; }
+.nav .new { display: none; position: absolute; top: 0; left: calc(50% + 8px); background: var(--blue); color: #fff; font-size: 8.5px; font-weight: 700; padding: 1px 4px; border-radius: 6px; letter-spacing: 0.04em; }
 
 /* cards */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; box-shadow: 0 1px 2px rgba(5, 5, 5, 0.04); }
 .card.flat { border: 0; background: transparent; padding: 0; }
-.hero, .summary { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #fff; border: 0; }
-.summary .muted, .summary .tiny.muted, .summary .small.muted, .summary .steplabels { color: rgba(255, 255, 255, 0.72); }
-.summary .big { color: #fff; }
-.summary [style*="var(--ok)"] { color: #5fe0a0 !important; }
-.summary .steps .seg1 { background: rgba(255, 255, 255, 0.2); }
-.summary .steps .seg1.paid { background: #3ed485; }
-.summary .steps .seg1.part::after { background: #3ed485; }
-.summary .steps .seg1.due { background: repeating-linear-gradient(45deg, #6f9df7, #6f9df7 6px, #9bbcfa 6px, #9bbcfa 12px); }
-.summary .note, .summary .pill { color: inherit; }
+.hero, .summary { background: var(--card); }
 .row { display: flex; align-items: center; gap: 10px; }
 .between { justify-content: space-between; }
 .col { display: flex; flex-direction: column; gap: 8px; }
