@@ -9,12 +9,12 @@ import { dayOf, inr, todayIST } from '@/lib/format';
 
 const TITLES = {
   verify: 'Verify payment',
-  request: 'Change requested',
+  request: 'Needs your reply',
   sent: 'Request sent, payment pending',
   overdue: 'Overdue',
   today: 'Collect today',
   dispatch: 'Ready to dispatch',
-  courier: 'Cash with courier',
+  courier: 'Courier payout pending',
   waiting: 'Waiting for customer',
   upcoming: 'Coming up',
   making: 'In the making',

@@ -164,7 +164,7 @@ export function RemitSheet({ c }) {
   const { o, d, t, toast, busy, act, setSheet, share, copyLink } = c;
   const [ref, setRef] = useState('');
   return (
-    <Sheet title={t('I received the courier\'s payment')} onClose={() => setSheet(null)}>
+    <Sheet title={t('The courier transferred the money to me')} onClose={() => setSheet(null)}>
       <div className="small muted">{t('Record this only once the money is in your account.')}</div>
       <Field label={t('Reference (optional)')}><input id="rref" value={ref} onChange={(e) => setRef(e.target.value)} placeholder={t('Courier remittance ref')} /></Field>
       <button className="btn" disabled={busy} onClick={async () => { if (await act('remittance_received', { ref }, 'Payment recorded')) setSheet(null); }}>{t('Save {amt}', { amt: inr(o.cod.amount) })}</button>

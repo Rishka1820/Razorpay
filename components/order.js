@@ -12,12 +12,12 @@ export function statusChip(o, t) {
   const b = bucket(o, o.today);
   const map = {
     verify: ['warn', 'Verify payment'],
-    request: ['warn', 'Change requested'],
+    request: ['warn', 'Needs your reply'],
     sent: ['info', 'Request sent'],
     overdue: ['bad', 'Overdue'],
     today: ['info', 'Collect today'],
     dispatch: ['ok', 'Ready to dispatch'],
-    courier: ['warn', 'Cash with courier'],
+    courier: ['warn', 'Courier payout pending'],
     waiting: ['warn', 'Waiting for customer'],
     upcoming: ['info', 'Payment coming up'],
     making: ['', 'In the making'],
@@ -84,7 +84,7 @@ export function OrderRow({ o }) {
         ) : b === 'courier' ? (
           <>
             <div style={{ fontSize: 16 }}>{inr(o.cod.amount)}</div>
-            <div className="tiny muted" style={{ fontWeight: 500 }}>{t('with courier')}</div>
+            <div className="tiny muted" style={{ fontWeight: 500 }}>{t('payout pending')}</div>
           </>
         ) : (
           <>
@@ -128,12 +128,15 @@ export function eventLine(e, t, o) {
     case 'delivery_changed': return t('Delivery date moved from {from} to {to}', { from: d.from ? fmtDate(d.from) : '-', to: fmtDate(d.to) }) + (d.reason ? ` · ${d.reason}` : '');
     case 'instalments_merged': return t('Unpaid {names} merged into the final balance of {amt}', { names: d.names.map((n) => t(n)).join(', '), amt: A(d.balance) });
     case 'ready_cleared': return t('Added work approved: order is back in the making');
+    case 'cancel_requested': return t('Customer asked to cancel: {note}', { note: d.note });
+    case 'issue_reported': return t('Customer reported an issue: {note}', { note: d.note });
+    case 'request_resolved': return t('You replied to the customer\'s request');
     case 'stage_date_set': return t('{name} payment date set to {date}', { name: t(d.name), date: fmtDate(d.date) });
     case 'milestone_unlocked': return t(d.byDate ? '{name} payment date reached: {amt} now due' : '{name} stage reached: {amt} now due', { name: t(d.name), amt: A(d.amount) });
     case 'ready': return t('Marked ready, photo {p}', { p: t(d.hasPhoto ? 'added' : 'not added') });
     case 'fulfilment_set': return t('Delivery set to: {m}', { m: t(d.mode === 'cod' ? 'Pay on delivery' : d.mode === 'pickup' ? 'Pickup' : 'Pay before dispatch') });
     case 'dispatched': return d.cod ? t('Dispatched with {c}. {amt} to be paid on delivery', { c: d.courier, amt: A(d.cod) }) : t('Dispatched with {c}', { c: d.courier });
-    case 'courier_collected': return t('Courier collected {amt} in cash', { amt: A(d.amount) });
+    case 'courier_collected': return t('Courier collected {amt} in cash from the customer', { amt: A(d.amount) });
     case 'remittance_received': return t('Courier payment of {amt} reached you', { amt: A(d.amount) });
     case 'delivered': return t('Delivered');
     case 'cancelled': return t('Order cancelled. Refunded {r}, kept {k}', { r: A(d.refunded), k: A(d.kept) });
@@ -192,7 +195,7 @@ export function VersionList({ o }) {
       {o.versions.map((v) => (
         <div className="row between" key={v.n} style={{ alignItems: 'flex-start' }}>
           <div className="grow">
-            <div className="bold num">v{v.n} · {inr(v.total)}</div>
+            <div className="bold num">{v.n === 1 ? t('Original order') : t('Revision {n}', { n: v.n - 1 })} · {inr(v.total)}</div>
             <div className="tiny muted">{v.note}{v.acceptedAt ? ` · ${t('accepted')} ${fmtDateTime(v.acceptedAt)}` : ''}</div>
           </div>
           <Pill tone={tone[v.status]}>{t(v.status === 'proposed' && v.n === 1 ? 'Awaiting acceptance' : v.status[0].toUpperCase() + v.status.slice(1))}</Pill>

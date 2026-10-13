@@ -20,6 +20,8 @@ export default function CustomerPage({ params }) {
   const [claimOpen, setClaimOpen] = useState(false);
   const [chgOpen, setChgOpen] = useState(false);
   const [chgNote, setChgNote] = useState('');
+  const [sideOpen, setSideOpen] = useState(null);
+  const [sideNote, setSideNote] = useState('');
   const [ref, setRef] = useState('');
   const o = data?.order;
 
@@ -111,7 +113,17 @@ export default function CustomerPage({ params }) {
           <button className="btn ghost" onClick={() => setChgOpen(true)}>{t('Ask for a change')}</button>
         )}
         {d.pendingChangeRequest && (
-          <div className="note warn">{t('You asked for a change: “{note}”. {seller} will send you a new price to approve.', { seller, note: d.pendingChangeRequest.note })}</div>
+          <div className="note warn">{d.pendingChangeRequest.kind === 'cancel'
+            ? t('You asked to cancel: “{note}”. {seller} will reply.', { seller, note: d.pendingChangeRequest.note })
+            : d.pendingChangeRequest.kind === 'issue'
+              ? t('You reported an issue: “{note}”. {seller} will get back to you.', { seller, note: d.pendingChangeRequest.note })
+              : t('You asked for a change: “{note}”. {seller} will send you a new price to approve.', { seller, note: d.pendingChangeRequest.note })}</div>
+        )}
+        {!pending && !d.pendingChangeRequest && o.stage !== 'awaiting_acceptance' && o.stage !== 'cancelled' && (
+          <div className="btnrow">
+            {['making', 'ready'].includes(o.stage) && <button className="btn ghost sm" onClick={() => setSideOpen('cancel')}>{t('Ask to cancel')}</button>}
+            <button className="btn ghost sm" onClick={() => setSideOpen('issue')}>{t('Report an issue')}</button>
+          </div>
         )}
         {(o.changeRequests || []).length > 0 && !d.pendingChangeRequest && !pending && o.changeRequests[o.changeRequests.length - 1].status === 'declined' && (
           <div className="note bad">{t('{seller} couldn\'t make that change.')}</div>
@@ -163,7 +175,7 @@ export default function CustomerPage({ params }) {
         </section>
 
         <section className="card col">
-          <div className="sec" style={{ padding: 0 }}><span>{t('Versions of this order')}</span></div>
+          <div className="sec" style={{ padding: 0 }}><span>{t('Order history')}</span></div>
           <VersionList o={o} />
           {o.acceptedAt && <div className="small muted">{o.acceptedVia === 'bill' ? t('Recorded as accepted via paper bill on {when}', { when: fmtDate(o.acceptedAt.slice(0, 10)) }) : t('You accepted the terms on {when}', { when: fmtDateTime(o.acceptedAt) })}</div>}
         </section>
@@ -174,6 +186,14 @@ export default function CustomerPage({ params }) {
           <div className="small muted">{t('Tell {seller} what you\'d like. They\'ll send you a new price. Nothing changes until you accept it.', { seller })}</div>
           <Field label={t('What would you like to change?')}><textarea value={chgNote} onChange={(e) => setChgNote(e.target.value)} placeholder={t('e.g. 2 more of the same item')} /></Field>
           <button className="btn" disabled={busy || !chgNote.trim()} onClick={async () => { await act('request_change', { note: chgNote }); setChgOpen(false); setChgNote(''); }}>{t('Send to {seller}', { seller })}</button>
+        </Sheet>
+      )}
+
+      {sideOpen && (
+        <Sheet title={t(sideOpen === 'cancel' ? 'Ask to cancel' : 'Report an issue')} onClose={() => setSideOpen(null)}>
+          <div className="small muted">{sideOpen === 'cancel' ? t('{seller} will see your request and reply. Nothing is cancelled until they agree, and any refund is decided with them.', { seller }) : t('{seller} will see this and get back to you. Your order and payments stay as they are until it is sorted.', { seller })}</div>
+          <Field label={t(sideOpen === 'cancel' ? 'Why would you like to cancel?' : 'What is not as agreed?')}><textarea value={sideNote} onChange={(e) => setSideNote(e.target.value)} placeholder={t(sideOpen === 'cancel' ? 'e.g. the delivery has been delayed' : 'e.g. the colour is different from the photo')} /></Field>
+          <button className="btn" disabled={busy || !sideNote.trim()} onClick={async () => { await act(sideOpen === 'cancel' ? 'request_cancel' : 'report_issue', { note: sideNote }); setSideOpen(null); setSideNote(''); }}>{t('Send to {seller}', { seller })}</button>
         </Sheet>
       )}
 
