@@ -72,11 +72,13 @@ export function ManualSheet({ c }) {
 export function ChangeSheet({ c }) {
   const { o, d, t, toast, busy, act, setSheet, share, copyLink } = c;
   const [total, setTotal] = useState(String(o.total));
-  const [note, setNote] = useState('');
+  const req = d.pendingChangeRequest;
+  const [note, setNote] = useState(req ? req.note : '');
   const n = Number(total) || 0;
   const after = n ? Math.max(0, cumTargets(n, o.plan, { ...(o.frozen || {}), ...frozenAfter(o) })[d.idx] - d.paid) : 0;
   return (
     <Sheet title={t('Propose a change')} onClose={() => setSheet(null)}>
+      {req && <div className="note warn">{t('The customer asked: “{note}”. Set the new total they should approve.', { note: req.note })}</div>}
       <div className="small muted">{t('The customer must accept the change. Until then the old total stays in force.')}</div>
       <Field label={t('What changed')}><input id="cnote" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('e.g. 2 matching cushions added')} /></Field>
       <Field label={t('New total (₹)')}><input id="ctotal" inputMode="numeric" value={total} onChange={(e) => setTotal(e.target.value.replace(/\D/g, ''))} /></Field>
@@ -86,7 +88,7 @@ export function ChangeSheet({ c }) {
           {d.paid > n && ` ${t('You would owe a refund of {amt}.', { amt: inr(d.paid - n) })}`}
         </div>
       )}
-      <button className="btn" disabled={busy || !n || n === o.total} onClick={async () => { const x = await act('propose_version', { total: n, note }, 'Change saved. Send it to the customer to accept'); if (x) setSheet(null); }}>
+      <button className="btn" disabled={busy || !n || n === o.total} onClick={async () => { const x = await act('propose_version', { total: n, note, requestId: req ? req.id : undefined }, 'Change saved. Send it to the customer to accept'); if (x) setSheet(null); }}>
         {t('Send for acceptance')}
       </button>
     </Sheet>

@@ -10,6 +10,7 @@ export function statusChip(o, t) {
   const b = bucket(o, o.today);
   const map = {
     verify: ['warn', 'Verify payment'],
+    request: ['warn', 'Change requested'],
     overdue: ['bad', 'Overdue'],
     today: ['info', 'Collect today'],
     dispatch: ['ok', 'Ready to dispatch'],
@@ -108,6 +109,8 @@ export function eventLine(e, t, o) {
     case 'request_replaced': return t('Old request for {amt} cancelled and replaced', { amt: A(d.amount) });
     case 'request_closed': return t('Payment request for {amt} closed', { amt: A(d.amount) });
     case 'payment': return t('{amt} received via Razorpay ({m})', { amt: A(d.amount), m: methodLabel(d.method, t) }) + (d.stale ? ' · ' + t('paid on an older link') : '');
+    case 'change_requested': return t('Customer asked for a change: {note}', { note: d.note });
+    case 'change_request_declined': return t('You said no to the change request');
     case 'claim_made': return t('Customer says they paid {amt} directly by UPI', { amt: A(d.amount) });
     case 'claim_confirmed': return t('You confirmed {amt} received by UPI', { amt: A(d.amount) });
     case 'claim_rejected': return t('You marked {amt} as not received', { amt: A(d.amount) });
@@ -131,7 +134,7 @@ export function eventLine(e, t, o) {
 
 export function eventTone(type) {
   if (['payment', 'claim_confirmed', 'accepted', 'version_accepted', 'remittance_received', 'delivered'].includes(type)) return 'ok';
-  if (['manual_payment', 'bill_advance', 'courier_collected', 'overpaid', 'claim_made', 'claim_rejected'].includes(type)) return 'warn';
+  if (['manual_payment', 'bill_advance', 'courier_collected', 'overpaid', 'claim_made', 'claim_rejected', 'change_requested'].includes(type)) return 'warn';
   if (['request_created', 'version_proposed', 'dispatched'].includes(type)) return 'blue';
   return '';
 }

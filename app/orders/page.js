@@ -9,6 +9,7 @@ import { dayOf, inr, todayIST } from '@/lib/format';
 
 const TITLES = {
   verify: 'Verify payment',
+  request: 'Change requested',
   overdue: 'Overdue',
   today: 'Collect today',
   dispatch: 'Ready to dispatch',
@@ -20,7 +21,7 @@ const TITLES = {
   done: 'Done',
   cancelled: 'Cancelled',
 };
-const TODAY_SET = ['verify', 'overdue', 'today', 'dispatch', 'courier', 'waiting'];
+const TODAY_SET = ['verify', 'request', 'overdue', 'today', 'dispatch', 'courier', 'waiting'];
 
 export default function Orders() {
   const { t } = useApp();

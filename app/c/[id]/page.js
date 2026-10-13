@@ -14,6 +14,8 @@ export default function CustomerPage({ params }) {
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState(null);
   const [claimOpen, setClaimOpen] = useState(false);
+  const [chgOpen, setChgOpen] = useState(false);
+  const [chgNote, setChgNote] = useState('');
   const [ref, setRef] = useState('');
   const o = data?.order;
 
@@ -93,6 +95,17 @@ export default function CustomerPage({ params }) {
           </div>
         )}
 
+        {/* ask for a change */}
+        {['making', 'ready'].includes(o.stage) && !pending && !d.pendingChangeRequest && (
+          <button className="btn ghost" onClick={() => setChgOpen(true)}>{t('Ask for a change')}</button>
+        )}
+        {d.pendingChangeRequest && (
+          <div className="note warn">{t('You asked for a change: “{note}”. Ananya will send the new price for you to approve.', { note: d.pendingChangeRequest.note })}</div>
+        )}
+        {(o.changeRequests || []).length > 0 && !d.pendingChangeRequest && !pending && o.changeRequests[o.changeRequests.length - 1].status === 'declined' && (
+          <div className="note bad">{t('Ananya could not make that change.')}</div>
+        )}
+
         {/* 3. pay */}
         {r && o.stage !== 'cancelled' && (
           <div className="card col" style={{ borderColor: '#bcd5fb', background: '#f2f7ff' }}>
@@ -141,6 +154,14 @@ export default function CustomerPage({ params }) {
           {o.acceptedAt && <div className="small muted">{t('You accepted the terms on {when}', { when: fmtDateTime(o.acceptedAt) })}</div>}
         </section>
       </main>
+
+      {chgOpen && (
+        <Sheet title={t('Ask for a change')} onClose={() => setChgOpen(false)}>
+          <div className="small muted">{t('Tell Ananya what you would like. She will send a new price. Nothing changes until you accept it.')}</div>
+          <Field label={t('What would you like to change?')}><textarea value={chgNote} onChange={(e) => setChgNote(e.target.value)} placeholder={t('e.g. 2 matching cushions in the same velvet')} /></Field>
+          <button className="btn" disabled={busy || !chgNote.trim()} onClick={async () => { await act('request_change', { note: chgNote }); setChgOpen(false); setChgNote(''); }}>{t('Send to Ananya')}</button>
+        </Sheet>
+      )}
 
       {claimOpen && (
         <Sheet title={t('Paid directly by UPI')} onClose={() => setClaimOpen(false)}>

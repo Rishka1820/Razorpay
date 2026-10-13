@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Field, Icon, Pill, Shell, Spinner, useApp } from '@/components/kit';
 import { api, fileToDataUrl } from '@/lib/client';
@@ -28,25 +28,46 @@ export default function NewOrder() {
     }
   }
 
-  async function read() {
+  // A chat can arrive without copy and paste: from the chat simulator, or shared from WhatsApp into the installed app.
+  useEffect(() => {
+    let incoming = '';
+    try {
+      const q = new URLSearchParams(window.location.search);
+      incoming = [q.get('title'), q.get('text'), q.get('url')].filter(Boolean).join('\n');
+      if (!incoming) {
+        incoming = sessionStorage.getItem('incomingChat') || '';
+        sessionStorage.removeItem('incomingChat');
+      }
+    } catch {}
+    if (incoming.trim()) {
+      setMode('chat');
+      setText(incoming);
+      read(incoming, 'chat');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function read(chatText, forceMode) {
+    const m = forceMode || mode;
+    const body = m === 'bill' ? { image: img } : { text: typeof chatText === 'string' ? chatText : text };
     setBusy(true);
     try {
-      const { fields: p } = await api('/api/parse', { method: 'POST', body: mode === 'bill' ? { image: img } : { text } });
+      const { fields: p } = await api('/api/parse', { method: 'POST', body });
       const pct = p.advance_percent_agreed;
       setForm({
         name: p.customer_name || '',
         phone: p.phone || '',
         item: p.item || '',
         total: p.total_inr || '',
-        advance: mode === 'bill' && p.advance_received_inr ? p.advance_received_inr : '',
+        advance: m === 'bill' && p.advance_received_inr ? p.advance_received_inr : '',
         advMethod: ['cash', 'upi_personal', 'bank'].includes(p.advance_method) ? p.advance_method : 'cash',
-        advRef: mode === 'bill' ? 'Bill photo' : '',
+        advRef: m === 'bill' ? 'Bill photo' : '',
         deliveryDate: p.delivery_date || '',
         plan: pct && pct <= 40 ? '40-30-30' : '50-50',
         notes: p.notes || '',
         engine: p.engine,
         ai: { name: !!p.customer_name, phone: !!p.phone, item: !!p.item, total: !!p.total_inr, advance: !!p.advance_received_inr, deliveryDate: !!p.delivery_date },
-        source: mode,
+        source: m,
       });
     } catch (e) {
       toast(e.message);
@@ -102,7 +123,7 @@ export default function NewOrder() {
               <Field label={t('Copy the customer’s message from WhatsApp or Instagram and paste it here')}>
                 <textarea id="chat" value={text} onChange={(e) => setText(e.target.value)} placeholder={t('Paste here…')} />
               </Field>
-              <button className="btn" disabled={busy || !text.trim()} onClick={read}>{busy ? <Spinner /> : <Icon n="chat" />}{t('Read order from chat')}</button>
+              <button className="btn" disabled={busy || !text.trim()} onClick={() => read()}>{busy ? <Spinner /> : <Icon n="chat" />}{t('Read order from chat')}</button>
             </div>
           )}
 
@@ -114,7 +135,7 @@ export default function NewOrder() {
                 <Icon n="camera" />{img ? t('Retake') : t('Photograph the bill')}
               </label>
               <input id="billfile" type="file" accept="image/*" capture="environment" hidden onChange={(e) => pickImage(e.target.files?.[0])} />
-              <button className="btn" disabled={busy || !img} onClick={read}>{busy ? <Spinner /> : <Icon n="doc" />}{t('Read the bill')}</button>
+              <button className="btn" disabled={busy || !img} onClick={() => read()}>{busy ? <Spinner /> : <Icon n="doc" />}{t('Read the bill')}</button>
             </div>
           )}
         </>

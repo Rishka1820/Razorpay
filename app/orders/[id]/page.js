@@ -111,6 +111,18 @@ export default function OrderPage({ params }) {
         </div>
       )}
 
+      {d.pendingChangeRequest && (
+        <div className="card col" style={{ borderColor: '#f1cf8c', background: '#fffaf0' }}>
+          <div className="bold">{t('{name} asked for a change', { name: o.customer.name.split(' ')[0] })}</div>
+          <div className="small" style={{ background: '#fff', borderRadius: 10, padding: 10 }}>“{d.pendingChangeRequest.note}”</div>
+          <div className="small muted">{t('Set the new price. The customer must accept it before anything changes.')}</div>
+          <div className="btnrow">
+            <button className="btn ghost" disabled={busy || role !== 'owner'} onClick={() => act('decline_change_request', { requestId: d.pendingChangeRequest.id }, 'Request declined')}>{t('Cannot do this')}</button>
+            <button className="btn" disabled={busy} onClick={() => (role === 'owner' ? setSheet('change') : toast(t('Only the owner can change the price')))}>{t('Set the price')}</button>
+          </div>
+        </div>
+      )}
+
       {/* next step */}
       {!closed && NextStep()}
       {closed && o.stage !== 'cancelled' && <div className="note ok">{t('This order is closed: delivered and fully paid.')}</div>}

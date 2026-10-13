@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/kit';
 import { copyText, usePoll } from '@/lib/client';
 import { fmtTime, prettyPhone } from '@/lib/format';
@@ -41,6 +42,7 @@ function linkify(text) {
 const pad = (n) => String(n).padStart(2, '0');
 
 export default function ChatSim() {
+  const router = useRouter();
   const [open, setOpen] = useState(null);
   const [shown, setShown] = useState(0);
   const [typing, setTyping] = useState(false);
@@ -94,14 +96,26 @@ export default function ChatSim() {
     });
   }
 
-  async function copySel() {
+  function chatText(idx) {
     const day = new Date();
     const stamp = `${pad(day.getDate())}/${pad(day.getMonth() + 1)}/${String(day.getFullYear()).slice(2)}`;
-    const lines = sel.sort((a, b) => a - b).map((i) => {
+    return [...idx].sort((a, b) => a - b).map((i) => {
       const m = chat.messages[i];
       return `[${stamp}, ${m.t}] ${m.from === 'me' ? 'Ananya' : chat.name}: ${m.text}`;
-    });
-    const ok = await copyText(lines.join('\n'));
+    }).join('\n');
+  }
+
+  // Same as the share sheet on a phone: the selected messages go straight into the seller app.
+  function sendToOrders() {
+    const idx = sel.length ? sel : chat.messages.map((_, i) => i);
+    try {
+      sessionStorage.setItem('incomingChat', chatText(idx));
+    } catch {}
+    router.push('/orders/new');
+  }
+
+  async function copySel() {
+    const ok = await copyText(chatText(sel));
     setToast(ok ? 'Copied. Paste it into the seller app.' : 'Copy failed. Select the text by hand.');
     setSel([]);
     setTimeout(() => setToast(''), 2400);
@@ -151,6 +165,7 @@ export default function ChatSim() {
             <button className="iconbtn" aria-label="Clear selection" onClick={() => setSel([])}><Icon n="x" /></button>
             <h1>{sel.length} selected</h1>
             <button className="iconbtn" aria-label="Copy" onClick={copySel}><Icon n="copy" /></button>
+            <button className="iconbtn" aria-label="Send to Orders" onClick={sendToOrders} style={{ gap: 6, fontSize: 13, fontWeight: 600 }}><Icon n="share" /></button>
           </>
         ) : (
           <>
@@ -191,7 +206,10 @@ export default function ChatSim() {
         <div ref={endRef} />
       </div>
       <div style={{ background: '#f0f2f5', padding: '10px 14px calc(10px + env(safe-area-inset-bottom, 0px))', fontSize: 12.5, color: '#51606b', position: 'sticky', bottom: 0 }}>
-        {chat.live ? 'Messages the app sends appear here, and so do the customer’s replies and payments. Tap a link to open the customer’s page.' : 'Tap a message to select it, then tap the copy icon at the top. ▶ replays the conversation.'}
+        {!chat.live && (
+          <button className="btn" style={{ marginBottom: 8 }} onClick={sendToOrders}><Icon n="share" />{sel.length ? 'Send selected messages to Orders' : 'Send this chat to Orders'}</button>
+        )}
+        {chat.live ? 'Messages the app sends appear here, and so do the customer’s replies and payments. Tap a link to open the customer’s page.' : 'Tap messages to choose only some of them. ▶ replays the conversation.'}
       </div>
       {toast && <div className="toast">{toast}</div>}
     </div>
