@@ -72,9 +72,9 @@ export default function OrderPage({ params }) {
 
   return (
     <Shell title={o.customer.name} sub={`${o.item}`} back="/orders" nav={false} right={statusChip(o, t)}>
-      {isNew && (
+      {isNew && (o.stage === 'awaiting_acceptance' || o.acceptedVia === 'bill') && (
         <div className="card col" style={{ borderColor: '#bcd5fb', background: '#f2f7ff' }}>
-          <div className="bold">{o.stage === 'awaiting_acceptance' ? t('Order created. Send it to {name}', { name: o.customer.name.split(' ')[0] }) : t('Order created with the advance noted')}</div>
+          <div className="bold">{o.stage === 'awaiting_acceptance' ? t('Order created. Send it to {name}', { name: o.customer.name.split(' ')[0] }) : t('Advance received. Order confirmed.')}</div>
           <div className="small muted">
             {o.stage === 'awaiting_acceptance'
               ? t('{name} opens the link, reads the terms, taps Accept and pays the advance.', { name: o.customer.name.split(' ')[0] })
@@ -255,7 +255,7 @@ export default function OrderPage({ params }) {
           {d.nextStep && d.dueNow === 0 && d.nextDate && <div className="small muted">{t('{name} payment is due on {date}. You can ask for it earlier if the work gets there sooner.', { name: t(d.nextStep.name), date: fmtDate(d.nextDate) })}</div>}
           {d.nextStep && d.dueNow === 0 && (
             <button className="btn soft" disabled={busy} onClick={() => act('unlock_next', {}, 'Next payment is now due')}>
-              {t('{name} reached: ask for {amt}', { name: t(d.nextStep.name), amt: inr(d.nextAmount) })}
+              {t('Ask for {amt} · {name}', { amt: inr(d.nextAmount), name: t(d.nextStep.name) })}
             </button>
           )}
           <button className="btn ghost" onClick={() => setSheet('ready')}><Icon n="camera" />{t('Mark order ready')}</button>
