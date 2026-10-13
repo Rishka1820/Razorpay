@@ -1,13 +1,15 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LangSwitch, Pill, Shell, Spinner, useApp } from '@/components/kit';
-import { api, usePoll } from '@/lib/client';
+import { api, getDemoChat, setDemoChat, usePoll } from '@/lib/client';
 
 export default function More() {
   const { t, role, setRole, toast } = useApp();
   const { data: status } = usePoll('/api/status');
   const [busy, setBusy] = useState(false);
+  const [demo, setDemo] = useState(true);
+  useEffect(() => setDemo(getDemoChat()), []);
 
   async function reset() {
     setBusy(true);
@@ -33,8 +35,17 @@ export default function More() {
       </div>
 
       <div className="card col">
+        <div className="sec" style={{ padding: 0 }}><span>{t('When I tap Send on WhatsApp')}</span></div>
+        <div className="seg">
+          <button className={demo ? 'on' : ''} onClick={() => { setDemo(true); setDemoChat(true); }}>{t('Show in chat simulator')}</button>
+          <button className={!demo ? 'on' : ''} onClick={() => { setDemo(false); setDemoChat(false); }}>{t('Open WhatsApp')}</button>
+        </div>
+        <div className="small muted">{t('Use the simulator for the demo video. Open WhatsApp sends the message from your own phone.')}</div>
+      </div>
+
+      <div className="card col">
         <div className="sec" style={{ padding: 0 }}><span>{t('Language')}</span></div>
-        <div style={{ background: 'var(--navy)', borderRadius: 10, padding: 8, width: 'fit-content' }}><LangSwitch /></div>
+        <div style={{ width: 'fit-content' }}><LangSwitch /></div>
       </div>
 
       <Link href="/metrics" className="card row between"><span className="bold">{t('How we measure success')}</span><span className="muted">›</span></Link>

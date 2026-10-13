@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Field, Icon, Pill, Sheet, Shell, Spinner, useApp } from '@/components/kit';
 import { CancelSheet, ChangeSheet, CollectSheet, DispatchSheet, ManualSheet, ReadySheet, RemitSheet } from '@/components/ordersheets';
 import { PaymentList, Steps, Timeline, VersionList, shareMessage, statusChip } from '@/components/order';
-import { api, copyText, fileToDataUrl, usePoll, waLink } from '@/lib/client';
+import { api, copyText, fileToDataUrl, getDemoChat, usePoll, waLink } from '@/lib/client';
 import { cumTargets } from '@/lib/model';
 import { fmtDate, inr, prettyPhone } from '@/lib/format';
 
@@ -45,8 +45,12 @@ export default function OrderPage({ params }) {
 
   async function share(kind, ord = o) {
     const msg = shareMessage(ord, kind, origin);
+    if (getDemoChat()) {
+      await act('shared', { kind, text: msg }, 'Message sent. It shows in the chat simulator');
+      return;
+    }
     window.open(waLink(ord.customer.phone, msg), '_blank');
-    await act('shared', { kind });
+    await act('shared', { kind, text: msg });
   }
   async function copyLink(url) {
     toast((await copyText(url)) ? t('Link copied') : t('Copy failed'));

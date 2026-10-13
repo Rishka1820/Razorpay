@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from '@/components/kit';
-import { copyText } from '@/lib/client';
+import { copyText, usePoll } from '@/lib/client';
+import { fmtTime, prettyPhone } from '@/lib/format';
 
 // A chat simulator for the demo video's side screen. It is not WhatsApp and carries no WhatsApp branding.
 const CHATS = [
@@ -31,6 +32,12 @@ const CHATS = [
   },
 ];
 
+function linkify(text) {
+  return String(text).split(/(https?:\/\/\S+)/g).map((part, i) =>
+    /^https?:\/\//.test(part) ? <a key={i} href={part} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#0b57d0', textDecoration: 'underline', wordBreak: 'break-all' }}>{part}</a> : part
+  );
+}
+
 const pad = (n) => String(n).padStart(2, '0');
 
 export default function ChatSim() {
@@ -41,7 +48,22 @@ export default function ChatSim() {
   const [toast, setToast] = useState('');
   const endRef = useRef(null);
   const timers = useRef([]);
-  const chat = CHATS.find((c) => c.id === open);
+  const { data } = usePoll('/api/orders', 2000);
+  const liveOrders = (data?.orders || []).filter((o) => !o.sample && (o.thread || []).length > 0);
+  const liveChat = (o) => {
+    const lead = CHATS[0].name === o.customer.name ? CHATS[0].messages : [];
+    return {
+      id: 'live:' + o.id,
+      live: true,
+      orderId: o.id,
+      name: o.customer.name,
+      phone: prettyPhone(o.customer.phone),
+      status: 'order chat',
+      messages: [...lead, ...o.thread.map((m) => ({ from: m.from, text: m.text, t: fmtTime(m.at), auto: m.auto }))],
+    };
+  };
+  const liveOpen = open && open.startsWith('live:') ? liveOrders.find((o) => 'live:' + o.id === open) : null;
+  const chat = liveOpen ? liveChat(liveOpen) : CHATS.find((c) => c.id === open);
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   useEffect(() => {
@@ -51,7 +73,7 @@ export default function ChatSim() {
   function openChat(id) {
     timers.current.forEach(clearTimeout);
     setOpen(id);
-    setShown(CHATS.find((c) => c.id === id).messages.length);
+    setShown(999);
     setTyping(false);
     setSel([]);
   }
@@ -90,9 +112,22 @@ export default function ChatSim() {
   if (!chat) {
     return (
       <div className="phone" style={{ background: '#fff' }}>
-        <header className="top" style={{ background: '#1f4d3f' }}><h1>Chats</h1></header>
+        <header className="top" style={{ background: '#1f4d3f', color: '#fff' }}><h1>Chats</h1></header>
         <div className="demo-bar"><span>Chat simulator for the demo video. Not WhatsApp.</span></div>
         <div className="main" style={{ background: '#fff' }}>
+          {liveOrders.map((o) => {
+            const last = o.thread[o.thread.length - 1];
+            return (
+              <button key={o.id} className="orow" style={{ border: 0, borderBottom: '1px solid var(--line)', borderRadius: 0 }} onClick={() => openChat('live:' + o.id)}>
+                <div className="avatar" style={{ background: '#dff1ea', color: '#1f4d3f' }}>{o.customer.name.slice(0, 1)}</div>
+                <div className="grow">
+                  <div className="bold">{o.customer.name}</div>
+                  <div className="small muted trunc">{last.text}</div>
+                </div>
+                <span className="pill ok">order chat</span>
+              </button>
+            );
+          })}
           {CHATS.map((c) => (
             <button key={c.id} className="orow" style={{ border: 0, borderBottom: '1px solid var(--line)', borderRadius: 0 }} onClick={() => openChat(c.id)}>
               <div className="avatar" style={{ background: '#dff1ea', color: '#1f4d3f' }}>P</div>
@@ -110,7 +145,7 @@ export default function ChatSim() {
 
   return (
     <div className="phone" style={{ background: '#ece5dd' }}>
-      <header className="top" style={{ background: sel.length ? '#2a6b58' : '#1f4d3f' }}>
+      <header className="top" style={{ background: sel.length ? '#2a6b58' : '#1f4d3f', color: '#fff', borderBottom: 0 }}>
         {sel.length ? (
           <>
             <button className="iconbtn" aria-label="Clear selection" onClick={() => setSel([])}><Icon n="x" /></button>
@@ -120,16 +155,18 @@ export default function ChatSim() {
         ) : (
           <>
             <button className="iconbtn" aria-label="Back" onClick={() => setOpen(null)}><Icon n="back" /></button>
-            <div className="avatar" style={{ background: '#dff1ea', color: '#1f4d3f', width: 34, height: 34 }}>P</div>
-            <div className="grow"><h1 style={{ fontSize: 16 }}>{chat.name}</h1><div className="sub">{typing ? 'typing…' : '+91 98290 11234'}</div></div>
-            <button className="iconbtn" aria-label="Replay conversation" title="Replay" onClick={replay}><Icon n="play" /></button>
+            <div className="avatar" style={{ background: '#dff1ea', color: '#1f4d3f', width: 34, height: 34 }}>{chat.name.slice(0, 1)}</div>
+            <div className="grow"><h1 style={{ fontSize: 16 }}>{chat.name}</h1><div className="sub" style={{ color: 'rgba(255,255,255,.75)' }}>{typing ? 'typing…' : chat.live ? chat.phone : '+91 98290 11234'}</div></div>
+            {!chat.live && <button className="iconbtn" aria-label="Replay conversation" title="Replay" onClick={replay}><Icon n="play" /></button>}
           </>
         )}
       </header>
       <div className="main" style={{ gap: 6, paddingBottom: 20 }}>
-        {chat.messages.slice(0, shown).map((m, i) => (
-          <button
+        {chat.messages.slice(0, chat.live ? 999 : shown).map((m, i) => (
+          <div
             key={i}
+            role="button"
+            tabIndex={0}
             onClick={() => toggle(i)}
             style={{
               alignSelf: m.from === 'me' ? 'flex-end' : 'flex-start',
@@ -146,15 +183,15 @@ export default function ChatSim() {
               color: '#111',
             }}
           >
-            {m.text}
-            <div style={{ fontSize: 10.5, color: '#667781', textAlign: 'right', marginTop: 2 }}>{m.t}</div>
-          </button>
+            {linkify(m.text)}
+            <div style={{ fontSize: 10.5, color: '#667781', textAlign: 'right', marginTop: 2 }}>{m.auto ? 'automatic · ' : ''}{m.t}</div>
+          </div>
         ))}
         {typing && <div style={{ alignSelf: 'flex-start', background: '#fff', borderRadius: 12, padding: '8px 14px', color: '#667781' }}>•••</div>}
         <div ref={endRef} />
       </div>
       <div style={{ background: '#f0f2f5', padding: '10px 14px calc(10px + env(safe-area-inset-bottom, 0px))', fontSize: 12.5, color: '#51606b', position: 'sticky', bottom: 0 }}>
-        Tap a message to select it, then tap the copy icon at the top. ▶ replays the conversation.
+        {chat.live ? 'Messages the app sends appear here, and so do the customer’s replies and payments. Tap a link to open the customer’s page.' : 'Tap a message to select it, then tap the copy icon at the top. ▶ replays the conversation.'}
       </div>
       {toast && <div className="toast">{toast}</div>}
     </div>
