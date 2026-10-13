@@ -123,10 +123,13 @@ export default function OrderPage({ params }) {
       )}
 
       {chase && (
-        <div className="row" style={{ gap: 8 }}>
-          <a className="btn ghost sm" href={o.customer.phone ? `tel:+${o.customer.phone}` : undefined} onClick={() => o.customer.phone && act('called')} style={o.customer.phone ? undefined : { opacity: 0.45, pointerEvents: 'none' }}><Icon n="phone" s={16} />{t('Call')}</a>
-          <button className="btn ghost sm" disabled={busy} onClick={remind}><Icon n="chat" s={16} />{t('Remind on WhatsApp')}</button>
-          {lateDays > 0 && <span className="small" style={{ color: 'var(--bad)', marginLeft: 'auto' }}>{t('overdue by {n} days', { n: lateDays })}</span>}
+        <div className="card col">
+          <div className="bold">{lateDays > 0 ? t('{amt} is overdue by {n} days', { amt: inr(d.dueNow), n: lateDays }) : t('{amt} is due today', { amt: inr(d.dueNow) })}</div>
+          <div className="btnrow">
+            <a className="btn ghost" href={o.customer.phone ? `tel:+${o.customer.phone}` : undefined} aria-disabled={!o.customer.phone} onClick={() => o.customer.phone && act('called')} style={o.customer.phone ? undefined : { opacity: 0.45, pointerEvents: 'none' }}><Icon n="phone" />{t('Call')}</a>
+            <button className="btn" disabled={busy} onClick={remind}><Icon n="chat" />{t('Remind on WhatsApp')}</button>
+          </div>
+          <div className="tiny muted">{t('The reminder includes a payment link for the exact amount due.')}</div>
         </div>
       )}
 
@@ -151,9 +154,9 @@ export default function OrderPage({ params }) {
       {!closed && ['making', 'ready'].includes(o.stage) && (
         <div className="btnrow">
           {role === 'owner' ? (
-            <button className="btn soft sm" onClick={() => setSheet('change')}>{t('Propose a change')}</button>
+            <button className="btn ghost" onClick={() => setSheet('change')}>{t('Propose a change')}</button>
           ) : (
-            <button className="btn soft sm" onClick={() => toast(t('Only the owner can change prices'))} style={{ opacity: 0.6 }}>{t('Propose a change')}</button>
+            <button className="btn ghost" onClick={() => toast(t('Only the owner can change prices'))} style={{ opacity: 0.6 }}>{t('Propose a change')}</button>
           )}
         </div>
       )}
@@ -163,11 +166,11 @@ export default function OrderPage({ params }) {
         <PaymentList o={o} />
       </section>
 
-      {o.versions.length > 1 && <section className="card col">
+      <section className="card col">
         <div className="sec" style={{ padding: 0 }}><span>{t('Versions of this order')}</span></div>
         <VersionList o={o} />
         <div className="small muted">{o.acceptedAt ? t('Terms accepted {when} via {how}', { when: fmtDate(o.acceptedAt.slice(0, 10)), how: o.acceptedVia === 'bill' ? t('paper bill') : t('order link') }) : t('Terms not accepted yet')}</div>
-      </section>}
+      </section>
 
       <section className="card col">
         <div className="sec" style={{ padding: 0 }}><span>{t('Customer')}</span></div>

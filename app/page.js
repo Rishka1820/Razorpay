@@ -39,11 +39,12 @@ export default function Home() {
       sub={`${t(greeting)} · ${BUSINESS.city} · ${role === 'owner' ? t('Owner') : t('Staff')}`}
       right={<><LangSwitch /><Bell /></>}
     >
-      <div className="card col" style={{ gap: 14 }}>
+      <div className="card col">
         <div className="two">
           <div>
             <div className="small muted">{t('Received today')}</div>
             <div className="big" style={{ fontSize: 26, lineHeight: '32px' }}>{inr(receivedToday)}</div>
+            <div className="tiny muted">{t('Razorpay and payments you recorded')}</div>
           </div>
           <div>
             <div className="small muted">{t('Total dues')}</div>
@@ -51,7 +52,23 @@ export default function Home() {
             <div className="tiny muted">{t('across {n} orders', { n: dues.count })}</div>
           </div>
         </div>
-        <Link href="/orders/new" className="btn"><Icon n="plus" />{t('New order')}</Link>
+        <div className="strip">
+          <div className="grow">
+            <div className="t1">{t('{n} orders need a payment request', { n: collect.length })}</div>
+            <div className="t2">{inr(collectAmt)} {t('to collect today')}</div>
+          </div>
+          <Link href="/orders">{t('Open Orders')}</Link>
+        </div>
+      </div>
+
+      <div className="shortcuts">
+        {shortcuts.map((x) => (
+          <button key={x.label} className={x.hot ? 'hot' : ''} onClick={x.on}>
+            {x.hot && <span className="tag">NEW</span>}
+            <span className="ic"><Icon n={x.n} s={20} /></span>
+            {t(x.label)}
+          </button>
+        ))}
       </div>
 
       {attention.length > 0 && (
@@ -63,12 +80,27 @@ export default function Home() {
 
       {collect.length > 0 && (
         <div className="col">
-          <div className="sec"><span>{t('To collect today')} · {inr(collectAmt)}</span></div>
+          <div className="sec"><span>{t('To collect today')}</span></div>
           {collect.slice(0, 3).map((o) => <OrderRow key={o.id} o={o} />)}
         </div>
       )}
 
 
+      {sheet && (
+        <Sheet title={t('Create payment link')} onClose={() => setSheet(false)}>
+          <button className="choice" onClick={() => { setSheet(false); stub('One-time link'); }}>
+            <span className="radio" />
+            <span><span className="bold">{t('One-time link')}</span><br /><span className="small muted">{t('Ask for a single amount')}</span></span>
+          </button>
+          <button className="choice on" onClick={() => router.push('/orders/new')}>
+            <span className="radio" />
+            <span className="grow">
+              <span className="bold">{t('Order with milestones')} </span><Pill tone="warn">NEW</Pill><br />
+              <span className="small muted">{t('Made to order? Keep the advance, stage payments and balance on one order, with changes your customer approves.')}</span>
+            </span>
+          </button>
+        </Sheet>
+      )}
     </Shell>
   );
 }
