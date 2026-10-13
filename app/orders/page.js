@@ -8,6 +8,7 @@ import { BUCKET_ORDER, bucket } from '@/lib/model';
 import { dayOf, inr, todayIST } from '@/lib/format';
 
 const TITLES = {
+  verify: 'Verify payment',
   overdue: 'Overdue',
   today: 'Collect today',
   dispatch: 'Ready to dispatch',
@@ -19,7 +20,7 @@ const TITLES = {
   done: 'Done',
   cancelled: 'Cancelled',
 };
-const TODAY_SET = ['overdue', 'today', 'dispatch', 'courier', 'waiting'];
+const TODAY_SET = ['verify', 'overdue', 'today', 'dispatch', 'courier', 'waiting'];
 
 export default function Orders() {
   const { t } = useApp();

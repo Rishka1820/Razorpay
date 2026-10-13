@@ -96,6 +96,17 @@ export default function OrderPage({ params }) {
         )}
       </div>
 
+      {d.pendingClaim && (
+        <div className="card col" style={{ borderColor: '#f1cf8c', background: '#fffaf0' }}>
+          <div className="bold">{t('{name} says they paid {amt} by UPI', { name: o.customer.name.split(' ')[0], amt: inr(d.pendingClaim.amount) })}</div>
+          <div className="small muted">{d.pendingClaim.ref ? t('Reference they gave: {r}', { r: d.pendingClaim.ref }) : t('No reference given.')} {t('Check your bank or UPI app. It counts as paid only after you confirm.')}</div>
+          <div className="btnrow">
+            <button className="btn ghost" disabled={busy} onClick={() => act('reject_claim', { claimId: d.pendingClaim.id }, 'Marked as not received')}>{t('Not received')}</button>
+            <button className="btn" disabled={busy} onClick={() => act('confirm_claim', { claimId: d.pendingClaim.id }, 'Payment confirmed')}>{t('Received')}</button>
+          </div>
+        </div>
+      )}
+
       {/* next step */}
       {!closed && NextStep()}
       {closed && o.stage !== 'cancelled' && <div className="note ok">{t('This order is closed: delivered and fully paid.')}</div>}

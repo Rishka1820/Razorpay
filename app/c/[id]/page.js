@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Icon, LangSwitch, Pill, Sheet, Spinner, useApp } from '@/components/kit';
+import { Field, Icon, LangSwitch, Pill, Sheet, Spinner, useApp } from '@/components/kit';
 import { Steps, VersionList, methodLabel } from '@/components/order';
 import { api, usePoll } from '@/lib/client';
 import { fmtDate, fmtDateTime, inr } from '@/lib/format';
@@ -13,6 +13,8 @@ export default function CustomerPage({ params }) {
   const { data, err, setData } = usePoll(`/api/c/${id}`, 3000);
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState(null);
+  const [claimOpen, setClaimOpen] = useState(false);
+  const [ref, setRef] = useState('');
   const o = data?.order;
 
   async function act(type, payload = {}) {
@@ -98,7 +100,16 @@ export default function CustomerPage({ params }) {
             <div className="big">{inr(r.amount)}</div>
             <a className="btn" href={r.url}><Icon n="rupee" />{t('Pay {amt}', { amt: inr(r.amount) })}</a>
             <div className="tiny muted">{t('Secure payment by Razorpay: UPI, cards, netbanking.')}</div>
+            {!d.pendingClaim && (
+              <button className="btn ghost sm" onClick={() => setClaimOpen(true)}>{t('I paid {name} directly by UPI', { name: 'Ananya' })}</button>
+            )}
           </div>
+        )}
+        {d.pendingClaim && (
+          <div className="note warn">{t('You told Ananya you paid {amt}. It will show as paid once she confirms it.', { amt: inr(d.pendingClaim.amount) })}</div>
+        )}
+        {(o.claims || []).some((c) => c.status === 'rejected') && !d.pendingClaim && r && (
+          <div className="note bad">{t('Ananya could not see your last UPI payment. Please check, or use the payment button above.')}</div>
         )}
         {!r && o.stage !== 'awaiting_acceptance' && o.stage !== 'cancelled' && d.remaining > 0 && !pending && (
           <div className="note">{t('Nothing to pay right now. {name} will send the next payment request when it is due.', { name: 'Ananya' })}</div>
@@ -130,6 +141,15 @@ export default function CustomerPage({ params }) {
           {o.acceptedAt && <div className="small muted">{t('You accepted the terms on {when}', { when: fmtDateTime(o.acceptedAt) })}</div>}
         </section>
       </main>
+
+      {claimOpen && (
+        <Sheet title={t('Paid directly by UPI')} onClose={() => setClaimOpen(false)}>
+          <div className="small muted">{t('Pay to ananya.interiors@okaxis, then tell Ananya here. She will check her account and confirm.')}</div>
+          <div className="card row between"><span className="muted small">{t('Amount')}</span><b className="num">{inr(d.dueNow)}</b></div>
+          <Field label={t('UPI reference (optional)')}><input value={ref} onChange={(e) => setRef(e.target.value)} placeholder="4123 5567 8890" /></Field>
+          <button className="btn" disabled={busy} onClick={async () => { await act('claim_paid', { amount: d.dueNow, ref }); setClaimOpen(false); setRef(''); }}>{t('Tell Ananya I have paid')}</button>
+        </Sheet>
+      )}
 
       {receipt && (
         <Sheet title={t('Receipt')} onClose={() => setReceipt(null)}>

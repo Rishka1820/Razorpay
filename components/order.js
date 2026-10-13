@@ -9,6 +9,7 @@ export const STEP_LABEL = { advance: 'Advance', frame_ready: 'Frame ready', befo
 export function statusChip(o, t) {
   const b = bucket(o, o.today);
   const map = {
+    verify: ['warn', 'Verify payment'],
     overdue: ['bad', 'Overdue'],
     today: ['info', 'Collect today'],
     dispatch: ['ok', 'Ready to dispatch'],
@@ -107,6 +108,9 @@ export function eventLine(e, t, o) {
     case 'request_replaced': return t('Old request for {amt} cancelled and replaced', { amt: A(d.amount) });
     case 'request_closed': return t('Payment request for {amt} closed', { amt: A(d.amount) });
     case 'payment': return t('{amt} received via Razorpay ({m})', { amt: A(d.amount), m: methodLabel(d.method, t) }) + (d.stale ? ' · ' + t('paid on an older link') : '');
+    case 'claim_made': return t('Customer says they paid {amt} directly by UPI', { amt: A(d.amount) });
+    case 'claim_confirmed': return t('You confirmed {amt} received by UPI', { amt: A(d.amount) });
+    case 'claim_rejected': return t('You marked {amt} as not received', { amt: A(d.amount) });
     case 'overpaid': return t('More than the order total was paid: {amt} to refund', { amt: A(d.amount) });
     case 'manual_payment': return t('{amt} recorded by you ({m})', { amt: A(d.amount), m: methodLabel(d.method, t) });
     case 'version_proposed': return t('Change proposed: {from} to {to}', { from: A(d.from), to: A(d.to) });
@@ -126,8 +130,8 @@ export function eventLine(e, t, o) {
 }
 
 export function eventTone(type) {
-  if (['payment', 'accepted', 'version_accepted', 'remittance_received', 'delivered'].includes(type)) return 'ok';
-  if (['manual_payment', 'bill_advance', 'courier_collected', 'overpaid'].includes(type)) return 'warn';
+  if (['payment', 'claim_confirmed', 'accepted', 'version_accepted', 'remittance_received', 'delivered'].includes(type)) return 'ok';
+  if (['manual_payment', 'bill_advance', 'courier_collected', 'overpaid', 'claim_made', 'claim_rejected'].includes(type)) return 'warn';
   if (['request_created', 'version_proposed', 'dispatched'].includes(type)) return 'blue';
   return '';
 }
