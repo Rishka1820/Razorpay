@@ -6,6 +6,8 @@ import { bucket, PLANS } from '@/lib/model';
 
 export const STEP_LABEL = { advance: 'Advance', frame_ready: 'Midway', before_dispatch: 'Before dispatch' };
 
+export const stepLabel = (o, s) => (s.key === 'before_dispatch' && o.fulfilment === 'pickup' ? 'Before pickup' : s.name);
+
 export function statusChip(o, t) {
   const b = bucket(o, o.today);
   const map = {
@@ -53,7 +55,7 @@ export function Steps({ o }) {
         {segs.map((s, i) => <div key={i} className={s.cls} style={s.style} />)}
       </div>
       <div className="steplabels" style={cols}>
-        {segs.map((s, i) => <div key={i}>{t(s.name)}<br /><b style={{ fontWeight: 600 }}>{inr(s.to)}</b></div>)}
+        {segs.map((s, i) => <div key={i}>{t(stepLabel(o, d.steps[i]))}<br /><b style={{ fontWeight: 600 }}>{inr(s.size)}</b></div>)}
       </div>
     </div>
   );
@@ -76,7 +78,7 @@ export function OrderRow({ o }) {
         {showDue ? (
           <>
             <div style={{ fontSize: 16 }}>{inr(d.dueNow)}</div>
-            <div className="tiny muted" style={{ fontWeight: 500 }}>{t(d.step.name)}</div>
+            <div className="tiny muted" style={{ fontWeight: 500 }}>{t(stepLabel(o, d.step))}</div>
           </>
         ) : b === 'courier' ? (
           <>
@@ -112,7 +114,7 @@ export function eventLine(e, t, o) {
     case 'payment': return t('{amt} received via Razorpay ({m})', { amt: A(d.amount), m: methodLabel(d.method, t) }) + (d.stale ? ' · ' + t('paid on an older link') : '');
     case 'change_requested': return t('Customer asked for a change: {note}', { note: d.note });
     case 'change_request_declined': return t('You said no to the change request');
-    case 'claim_made': return t('Customer says they paid {amt} directly by UPI', { amt: A(d.amount) });
+    case 'claim_made': return t('Customer reported a {amt} UPI payment', { amt: A(d.amount) });
     case 'claim_confirmed': return t('You confirmed {amt} received by UPI', { amt: A(d.amount) });
     case 'claim_rejected': return t('You marked {amt} as not received', { amt: A(d.amount) });
     case 'overpaid': return t('The customer paid {amt} more than the total. It needs to be refunded.', { amt: A(d.amount) });

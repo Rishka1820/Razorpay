@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Field, Icon, Pill, Sheet, Shell, Spinner, useApp } from '@/components/kit';
 import { CancelSheet, ChangeSheet, CollectSheet, DispatchSheet, ManualSheet, ReadySheet, RemitSheet } from '@/components/ordersheets';
-import { PaymentList, Steps, Timeline, VersionList, shareMessage, statusChip } from '@/components/order';
+import { PaymentList, Steps, Timeline, VersionList, shareMessage, statusChip, stepLabel } from '@/components/order';
 import { api, copyText, fileToDataUrl, getDemoChat, usePoll, waLink } from '@/lib/client';
 import { bucket, cumTargets } from '@/lib/model';
-import { daysBetween, fmtDate, inr, prettyPhone } from '@/lib/format';
+import { addDays, daysBetween, fmtDate, inr, prettyPhone } from '@/lib/format';
 
 export default function OrderPage({ params }) {
   const { id } = params;
@@ -113,11 +113,11 @@ export default function OrderPage({ params }) {
 
       {d.pendingClaim && (
         <div className="card col" style={{ borderColor: '#f1cf8c', background: '#fffaf0' }}>
-          <div className="bold">{t('{name} says they paid {amt} by UPI', { name: o.customer.name.split(' ')[0], amt: inr(d.pendingClaim.amount) })}</div>
+          <div className="bold">{t('{name} reported a {amt} UPI payment', { name: o.customer.name.split(' ')[0], amt: inr(d.pendingClaim.amount) })}</div>
           <div className="small muted">{d.pendingClaim.ref ? t('Reference they shared: {r}', { r: d.pendingClaim.ref }) : t('They didn\'t share a reference.')} {t('Check your bank or UPI app. It counts as paid only when you tap Received.')}</div>
           <div className="btnrow">
             <button className="btn ghost" disabled={busy} onClick={() => act('reject_claim', { claimId: d.pendingClaim.id }, 'Marked as not received')}>{t('Not received')}</button>
-            <button className="btn" disabled={busy} onClick={() => act('confirm_claim', { claimId: d.pendingClaim.id }, 'Payment confirmed')}>{t('Received')}</button>
+            <button className="btn" disabled={busy} onClick={() => act('confirm_claim', { claimId: d.pendingClaim.id }, 'Payment confirmed')}>{t('Confirm {amt} received', { amt: inr(d.pendingClaim.amount) })}</button>
           </div>
         </div>
       )}
@@ -154,9 +154,9 @@ export default function OrderPage({ params }) {
       {!closed && ['making', 'ready'].includes(o.stage) && (
         <div className="btnrow">
           {role === 'owner' ? (
-            <button className="btn ghost" onClick={() => setSheet('change')}>{t('Propose a change')}</button>
+            <button className="btn ghost" onClick={() => setSheet('change')}>{t('Revise order')}</button>
           ) : (
-            <button className="btn ghost" onClick={() => toast(t('Only the owner can change prices'))} style={{ opacity: 0.6 }}>{t('Propose a change')}</button>
+            <button className="btn ghost" onClick={() => toast(t('Only the owner can change prices'))} style={{ opacity: 0.6 }}>{t('Revise order')}</button>
           )}
         </div>
       )}
@@ -216,11 +216,13 @@ export default function OrderPage({ params }) {
     if (o.stage === 'making') {
       return (
         <div className="card col">
+          {d.auto && !o.activeRequest && <div className="note warn">{t('The agreed date for {name} has arrived. Has the work reached this stage? If not, move the date.', { name: t(stepLabel(o, d.step)) })}</div>}
           {d.dueNow > 0 ? (
             <>
-              <div className="row between"><div><div className="tiny muted">{t('Due now')} · {t(d.step.name)}</div><div className="big">{inr(d.dueNow)}</div></div>
+              <div className="row between"><div><div className="tiny muted">{t('Due now')} · {t(stepLabel(o, d.step))}</div><div className="big">{inr(d.dueNow)}</div></div>
                 {o.activeRequest && <Pill tone="info">{t('Request open')}</Pill>}</div>
               <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{t('Collect {amt}', { amt: inr(d.dueNow) })}</button>
+              {d.auto && !o.activeRequest && <button className="btn ghost" disabled={busy} onClick={() => act('set_stage_date', { key: d.step.key, date: addDays(o.today, 7) }, 'Date moved by a week')}>{t('Not yet. Move the date by a week')}</button>}
             </>
           ) : (
             <div className="small muted">{t('Nothing is due right now.')}</div>
@@ -247,9 +249,9 @@ export default function OrderPage({ params }) {
           </div>
           {d.dueNow > 0 && (
             <>
-              <div className="row between"><div><div className="tiny muted">{t('Due now')} · {t(d.step.name)}</div><div className="big">{inr(d.dueNow)}</div></div>
+              <div className="row between"><div><div className="tiny muted">{t('Due now')} · {t(stepLabel(o, d.step))}</div><div className="big">{inr(d.dueNow)}</div></div>
                 {o.activeRequest && <Pill tone="info">{t('Request open')}</Pill>}</div>
-              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{t('Ask for {amt} before dispatch', { amt: inr(d.dueNow) })}</button>
+              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{t(o.fulfilment === 'pickup' ? 'Ask for {amt} before pickup' : 'Ask for {amt} before dispatch', { amt: inr(d.dueNow) })}</button>
             </>
           )}
           <button className="btn ghost" onClick={() => setSheet('dispatch')}><Icon n="truck" />{o.fulfilment === 'pickup' ? t('Hand over in person') : t('Dispatch')}</button>

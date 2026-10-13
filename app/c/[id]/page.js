@@ -68,6 +68,7 @@ export default function CustomerPage({ params }) {
             <div><div className="tiny muted">{t('Agreed total')}</div><div className="big">{inr(o.total)}</div></div>
             <div style={{ textAlign: 'right' }}><div className="tiny muted">{t('You have paid')}</div><div className="big" style={{ color: 'var(--ok)' }}>{inr(d.paid)}</div></div>
           </div>
+          {d.remaining > 0 && o.stage !== 'awaiting_acceptance' && <div className="row between small"><span className="muted">{t('Remaining')}</span><b className="num">{inr(d.remaining)}</b></div>}
           {o.stage !== 'awaiting_acceptance' && <Steps o={o} />}
           {o.deliveryDate && <div className="small muted">{t('Delivery by')} {fmtDate(o.deliveryDate)}</div>}
         </div>
@@ -89,12 +90,17 @@ export default function CustomerPage({ params }) {
         {pending && (
           <div className="card col" style={{ borderColor: '#f1cf8c', background: '#fffaf0' }}>
             <div className="bold">{t('Change to your order')}</div>
-            <div className="row between"><span className="num muted">{inr(o.total)}</span><Icon n="back" s={16} /><span className="big" style={{ fontSize: 22 }}>{inr(pending.total)}</span></div>
-            <div className="small">{pending.note}</div>
-            <div className="small muted">{t('The {paid} you\'ve already paid still counts.', { paid: inr(d.paid) })}</div>
+            <div className="col" style={{ gap: 6, background: '#fff', borderRadius: 6, padding: 12 }}>
+              <div className="row between small"><span className="muted">{t('Original order')}</span><span className="num">{inr(o.total)}</span></div>
+              <div className="row between small"><span>{pending.note}</span><b className="num">{pending.total >= o.total ? '+' : '−'}{inr(Math.abs(pending.total - o.total))}</b></div>
+              <div className="row between small"><span className="muted">{t('Revised total')}</span><b className="num">{inr(pending.total)}</b></div>
+              <div className="row between small"><span className="muted">{t('Already paid')}</span><span className="num">{inr(d.paid)}</span></div>
+              <div className="row between small"><span className="muted">{t('Remaining after approval')}</span><b className="num">{inr(Math.max(0, pending.total - d.paid))}</b></div>
+            </div>
+            <div className="small muted">{t('Earlier payments stay counted. The extra amount is added to the final payment.')}</div>
             <div className="btnrow">
               <button className="btn ghost" disabled={busy} onClick={() => act('decline_version', { n: pending.n })}>{t('Not now')}</button>
-              <button className="btn" disabled={busy} onClick={() => act('accept_version', { n: pending.n })}>{t('Accept change')}</button>
+              <button className="btn" disabled={busy} onClick={() => act('accept_version', { n: pending.n })}>{t('Approve revised order')}</button>
             </div>
           </div>
         )}
@@ -134,7 +140,8 @@ export default function CustomerPage({ params }) {
           <div className="note">{t('Nothing to pay right now. {seller} will send the next request when a payment is due.', { seller })}</div>
         )}
         {d.remaining === 0 && o.payments.length > 0 && o.stage !== 'cancelled' && <div className="note ok">{t('Fully paid. Thank you, {name}!', { name: first })}</div>}
-        {o.cod && o.cod.state !== 'remitted' && d.remaining > 0 && <div className="note warn">{t('{amt} to be paid when your order arrives.', { amt: inr(o.cod.amount) })}</div>}
+        {o.cod && o.cod.state === 'pending' && d.remaining > 0 && <div className="note warn">{t('{amt} to be paid when your order arrives.', { amt: inr(o.cod.amount) })}</div>}
+        {o.cod && o.cod.state === 'with_courier' && <div className="note ok">{t('You paid {amt} to the courier. Thank you!', { amt: inr(o.cod.amount) })}</div>}
 
         {o.dispatch && (
           <div className="card row">

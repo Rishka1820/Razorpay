@@ -96,7 +96,7 @@ export function ChangeSheet({ c }) {
       <Field label={t('New total (₹)')}><input id="ctotal" inputMode="numeric" value={total} onChange={(e) => setTotal(e.target.value.replace(/\D/g, ''))} /></Field>
       {n > 0 && n !== o.total && (
         <div className="note">
-          {t('The {paid} already received stays. Once the customer accepts, the amount due now will be {after}.', { paid: inr(d.paid), after: inr(after) })}
+          {t('Already received: {paid}. Remaining after approval: {rem}.', { paid: inr(d.paid), rem: inr(Math.max(0, n - d.paid)) })}{after > 0 ? ' ' + t('Due now: {after}.', { after: inr(after) }) : ''}
           {d.paid > n && ` ${t('You\'d need to refund {amt}.', { amt: inr(d.paid - n) })}`}
         </div>
       )}
