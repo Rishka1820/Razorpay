@@ -9,12 +9,13 @@ body.dark{background:linear-gradient(170deg,#040a2b 0%,#0a1d66 55%,#1364f1 140%)
 .brand{position:absolute;top:34px;right:56px;font-weight:700;font-size:26px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;z-index:5}
 .brand i{width:16px;height:22px;background:#1364f1;transform:skewX(-14deg);border-radius:2px;display:block}
 .brand small{font-weight:500;opacity:.65;font-size:20px;margin-left:6px}
-h1{position:absolute;top:34px;left:0;right:0;margin:0;text-align:center;font-size:56px;line-height:64px;font-weight:700;letter-spacing:-.02em;z-index:4}
+h1{position:absolute;top:22px;left:0;right:0;margin:0;text-align:center;font-size:56px;line-height:64px;font-weight:700;letter-spacing:-.02em;z-index:4}
 h1 em{font-style:normal;color:#1364f1}.dark h1 em{color:#7fb0ff}
-.sub{position:absolute;top:106px;left:0;right:0;text-align:center;font-size:26px;opacity:.72;z-index:4}
+.sub{position:absolute;top:88px;left:0;right:0;text-align:center;font-size:26px;opacity:.72;z-index:4}
 .in{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
-.phones{position:absolute;top:158px;left:0;right:0;display:flex;justify-content:center;gap:56px;transition:opacity .6s,transform .8s;z-index:3}
+.lab{position:absolute;top:124px;transform:translateX(-50%);z-index:5;font-size:22px;font-weight:700;padding:6px 18px;border-radius:999px;background:#fff;color:#072350;box-shadow:0 6px 18px rgba(7,35,80,.18);white-space:nowrap}.lab small{font-weight:500;opacity:.6;margin-right:8px;font-size:18px;letter-spacing:.08em}.dark .lab{background:#0f2a7a;color:#fff}
+.phones{clip-path:inset(150px 470px 0 470px);position:absolute;top:158px;left:0;right:0;display:flex;justify-content:center;gap:56px;transition:opacity .6s,transform .8s;z-index:3}
 .phones.hide{opacity:0;transform:scale(.96)}
 .ph{width:420px;height:810px;border-radius:46px;background:#0b0f1e;padding:14px;box-shadow:0 30px 80px rgba(7,35,80,.35);transform:scale(1.11);transform-origin:top center;margin-bottom:90px}
 .ph iframe{width:392px;height:782px;border:0;border-radius:34px;background:#fff;display:block}
@@ -55,8 +56,9 @@ h1 em{font-style:normal;color:#1364f1}.dark h1 em{color:#7fb0ff}
 .phones{transition:opacity .6s,transform .9s cubic-bezier(.3,.7,.2,1)}
 </style></head><body>
 <div class="blob" style="width:600px;height:600px;left:-150px;top:500px"></div><div class="blob" style="width:520px;height:520px;right:-100px;top:-120px"></div>
-<div class="brand"><i></i>Razorpay<small>Order Book</small></div>
+<div class="brand"><i></i>Razorpay<small>OrderBook</small></div>
 <h1 id="h"></h1><div class="sub" id="s"></div>
+<div class="lab" id="lt" style="left:722px"></div><div class="lab" id="rt" style="left:1198px"></div>
 <div id="side"><div id="step"></div><div id="cap"></div></div>
 <div id="pops"></div>
 <div class="phones" id="ph">
@@ -67,17 +69,19 @@ h1 em{font-style:normal;color:#1364f1}.dark h1 em{color:#7fb0ff}
 <div id="card"></div>
 <script>
 const $=id=>document.getElementById(id);
+window.__off=0;
 const re=(el)=>{el.classList.remove('in');void el.offsetWidth;el.classList.add('in')};
 window.scene=(h,s,dark,step,total,keep)=>{document.body.classList.toggle('dark',!!dark);$('h').innerHTML=h||'';$('s').textContent=s||'';re($('h'));re($('s'));
  $('step').textContent=step?('STEP '+step+' OF '+total):'';if(total)$('bar').style.width=(step/total*100)+'%';
  if(!keep){const p=$('ph');p.classList.remove('enter');void p.offsetWidth;p.classList.add('enter');}};
+window.labels=(l,rr)=>{$('lt').innerHTML=l||'';$('rt').innerHTML=rr||'';$('lt').style.display=l?'':'none';$('rt').style.display=rr?'':'none'};
 window.cap=t=>{$('cap').innerHTML=t||'';re($('cap'))};
 window.pop=(big,small,kind,ms)=>{const d=document.createElement('div');d.className='pop '+(kind||'');d.innerHTML='<b>'+big+'</b><span>'+small+'</span>';$('pops').appendChild(d);
  const kids=$('pops').children;while(kids.length>3)kids[0].remove();setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),400)},ms||5000)};
 window.clearpops=()=>{$('pops').innerHTML=''};
 window.ripple=(x,y)=>{const r=document.createElement('div');r.className='rip';r.style.left=x+'px';r.style.top=y+'px';document.body.appendChild(r);setTimeout(()=>r.remove(),800)};
-window.zoom=(x,y,k)=>{const p=$('ph');p.style.transformOrigin=x+'px '+(y-158)+'px';p.style.transform='scale('+k+')';$('h').style.opacity=.12;$('s').style.opacity=.12};
-window.unzoom=()=>{$('ph').style.transform='none';$('h').style.opacity=1;$('s').style.opacity=1};
+window.zoom=(x,y,k)=>{const p=$('ph');p.style.transformOrigin=x+'px '+(y-158)+'px';p.style.transform='scale('+k+')'};
+window.unzoom=()=>{$('ph').style.transform='none'};
 window.hl=(x,y,w,h,ms)=>{const r=document.createElement('div');r.className='ring';r.style.left=(x-10)+'px';r.style.top=(y-10)+'px';r.style.width=(w+20)+'px';r.style.height=(h+20)+'px';document.body.appendChild(r);
  const dim=$('dim');dim.style.setProperty('--cx',(x+w/2)+'px');dim.style.setProperty('--cy',(y+h/2)+'px');dim.style.setProperty('--r',(Math.max(w,h)/2+20)+'px');dim.classList.add('on');
  setTimeout(()=>{dim.classList.remove('on');r.classList.add('out');setTimeout(()=>r.remove(),400)},ms||2200)};
