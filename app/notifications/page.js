@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Icon, Pill, Shell, useApp } from '@/components/kit';
 import { fmtDateTime } from '@/lib/format';
 
-const ICON = { paid: 'rupee', verify: 'clock', change: 'chat', ok: 'check', warn: 'clock' };
+const ICON = { due: 'rupee', paid: 'rupee', verify: 'clock', change: 'chat', ok: 'check', warn: 'clock' };
 
 export default function Notifications() {
   const { t, notifs, markSeen } = useApp();
@@ -22,7 +22,7 @@ export default function Notifications() {
         <div style={{ fontSize: 14, lineHeight: '20px' }}>{t(i.text, i.params)}</div>
         <div className="tiny muted">{fmtDateTime(i.at)}</div>
       </span>
-      {i.action && <Pill tone="warn">{t(i.kind === 'verify' ? 'Verify' : 'Reply')}</Pill>}
+      {i.action && <Pill tone="warn">{t(i.kind === 'verify' ? 'Verify' : i.kind === 'due' ? 'Collect' : 'Reply')}</Pill>}
     </Link>
   );
 
