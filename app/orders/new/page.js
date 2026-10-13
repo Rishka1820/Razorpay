@@ -6,7 +6,7 @@ import { api, fileToDataUrl } from '@/lib/client';
 import { PLANS, cumTargets, defaultStageDates } from '@/lib/model';
 import { inr, prettyPhone } from '@/lib/format';
 
-const EMPTY = { name: '', phone: '', item: '', total: '', advance: '', advMethod: 'cash', advRef: '', deliveryDate: '', plan: '50-50', ai: {}, engine: null };
+const EMPTY = { name: '', phone: '', item: '', total: '', advance: '', advMethod: 'cash', advRef: '', deliveryDate: '', plan: '40-30-30', ai: {}, engine: null };
 
 export default function NewOrder() {
   const { t, toast } = useApp();
@@ -105,7 +105,7 @@ export default function NewOrder() {
   const cum = total ? cumTargets(total, form.plan) : [];
   const engineNote = {
     claude: ['ok', 'Read by Claude. Check every field before you continue.'],
-    rules: ['warn', 'Read with simple rules because no AI key is set. Check every field.'],
+    rules: ['ok', 'Filled in from your chat. Check every field before you continue.'],
     demo: ['warn', 'Demo reading: no AI key is set, so this is a sample bill. With a key, Claude reads your own photo.'],
   };
 
@@ -189,7 +189,7 @@ export default function NewOrder() {
           )}
 
           <div className="card col">
-            <div className="row between"><div className="bold">{t('Advance already received?')}</div>{form.ai.advance && <span className="ai">AI</span>}</div>
+            <div className="row between"><div className="bold">{t('Advance already received?')}</div></div>
             <div className="small muted">{t('Fill this in only if the customer has already paid you. Otherwise they\'ll accept the order and pay the advance by link.')}</div>
             <div className="grid2">
               <Field label={t('Amount (₹)')}>

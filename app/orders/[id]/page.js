@@ -46,7 +46,7 @@ export default function OrderPage({ params }) {
   async function share(kind, ord = o) {
     const msg = shareMessage(ord, kind, origin);
     if (getDemoChat()) {
-      await act('shared', { kind, text: msg }, 'Message sent. It shows in the chat simulator');
+      await act('shared', { kind, text: msg });
       return;
     }
     window.open(waLink(ord.customer.phone, msg), '_blank');

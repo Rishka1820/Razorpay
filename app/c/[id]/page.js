@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Field, Icon, LangSwitch, Pill, Sheet, Spinner, useApp } from '@/components/kit';
 import { Steps, VersionList, methodLabel } from '@/components/order';
@@ -14,6 +14,8 @@ export default function CustomerPage({ params }) {
   const seller = BUSINESS.name;
   const { data, err, setData } = usePoll(`/api/c/${id}`, 3000);
   const [busy, setBusy] = useState(false);
+  const [framed, setFramed] = useState(false);
+  useEffect(() => { try { setFramed(window.self !== window.top); } catch { setFramed(true); } }, []);
   const [receipt, setReceipt] = useState(null);
   const [claimOpen, setClaimOpen] = useState(false);
   const [chgOpen, setChgOpen] = useState(false);
@@ -33,7 +35,7 @@ export default function CustomerPage({ params }) {
     }
   }
 
-  const bar = (
+  const bar = framed ? null : (
     <div className="demo-bar">
       <span>{t('You\'re seeing what your customer sees')}</span>
       <Link href={`/orders/${id}`}>{t('Back to seller app')}</Link>

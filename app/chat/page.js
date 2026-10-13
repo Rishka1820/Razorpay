@@ -16,7 +16,7 @@ const CHATS = [
       { from: 'me', t: '10:43 am', text: 'Hi Priya! Yes, 3-seater in olive velvet, 7 ft. Takes about 3 weeks.' },
       { from: 'them', t: '10:44 am', text: 'What would it cost?' },
       { from: 'me', t: '10:46 am', text: '₹38,000 including delivery to Jaipur. I start work on an advance.' },
-      { from: 'them', t: '10:52 am', text: 'That works for me. Please confirm the order: 3-seater sofa in olive velvet, ₹38,000, I need it by 2 Nov. My number is 98290 11234, address is Malviya Nagar, Jaipur. I will pay 50% advance once you send the details.', key: true },
+      { from: 'them', t: '10:52 am', text: 'That works for me. Please confirm the order: 3-seater sofa in olive velvet, ₹38,000, I need it by 2 Nov. My number is 98290 11234, address is Malviya Nagar, Jaipur. I will pay 40% advance once you send the details.', key: true },
     ],
   },
   {
@@ -50,7 +50,7 @@ export default function ChatSim() {
   const [toast, setToast] = useState('');
   const endRef = useRef(null);
   const timers = useRef([]);
-  const { data } = usePoll('/api/orders', 2000);
+  const { data } = usePoll('/api/orders', 500);
   const liveOrders = (data?.orders || []).filter((o) => !o.sample && (o.thread || []).length > 0);
   const liveChat = (o) => {
     const lead = CHATS[0].name === o.customer.name ? CHATS[0].messages : [];
@@ -70,7 +70,7 @@ export default function ChatSim() {
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [shown, typing, open]);
+  }, [shown, typing, open, chat?.messages?.length]);
 
   function openChat(id) {
     timers.current.forEach(clearTimeout);

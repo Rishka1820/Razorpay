@@ -200,17 +200,26 @@ export function shareMessage(o, kind, origin) {
   const url = `${origin}/c/${o.id}`;
   const name = o.customer.name.split(' ')[0];
   const d = o.d;
-  if (kind === 'order') return `Hi ${name}, here is your order for ${o.item} (${inr(o.total)}). Please open it, check the details and tap Accept: ${url}`;
-  if (kind === 'change') return `Hi ${name}, I have added the change we discussed. The new total is ${inr(d.pendingVersion ? d.pendingVersion.total : o.total)}. Please check and accept it here: ${url}`;
+  const due = (n) => (o.activeRequest?.amount ?? d.dueNow) || n;
+  if (kind === 'order') {
+    const plan = d.steps.map((s, i) => {
+      const amt = inr(d.cum[i] - (d.cum[i - 1] || 0));
+      const when = o.stageDates?.[s.key] ? ` by ${fmtDate(o.stageDates[s.key])}` : i === 0 ? ' to start work' : '';
+      return `• ${s.name} ${amt}${when}`;
+    }).join('\n');
+    return `Hi ${name}, here is your order for ${o.item}.\n\nTotal: ${inr(o.total)}\nPayment plan:\n${plan}\n\nPlease read the terms, accept, and pay the advance here: ${url}`;
+  }
+  if (kind === 'change') {
+    const v = d.pendingVersion;
+    return `Hi ${name}, I have added the change we discussed. New total: ${inr(v ? v.total : o.total)} (was ${inr(o.total)}). What you have already paid still counts. Please check and approve it here: ${url}`;
+  }
   if (kind === 'remind') {
-    const link = o.activeRequest?.url || url;
-    const due = o.collectOn ? ` (due ${fmtDate(o.collectOn)})` : '';
-    return `Hi ${name}, a gentle reminder: ${inr(o.activeRequest?.amount ?? d.dueNow)} for your ${o.item}${due}. You can pay here: ${link}\nIf you have already paid, please reply here and I will check.`;
+    const dueOn = o.collectOn ? ` (due ${fmtDate(o.collectOn)})` : '';
+    return `Hi ${name}, a gentle reminder: ${inr(due())} for your ${o.item}${dueOn}. You can pay here: ${url}\nIf you have already paid, please reply here and I will check.`;
   }
   if (kind === 'pay') {
-    const link = o.activeRequest?.url || url;
-    if (o.stage === 'ready') return `Hi ${name}, your ${o.item} is ready! Photo and details are here: ${url}\nPlease pay ${inr(o.activeRequest?.amount ?? d.dueNow)} to dispatch: ${link}`;
-    return `Hi ${name}, ${inr(o.activeRequest?.amount ?? d.dueNow)} is due for your ${o.item} (${t0(d.step.name)}). Pay here: ${link}`;
+    if (o.stage === 'ready') return `Hi ${name}, your ${o.item} is ready! Photo and details are here: ${url}\nPlease pay ${inr(due())} to dispatch it.`;
+    return `Hi ${name}, ${inr(due())} is due for your ${o.item} (${t0(d.step.name)}). See how it is coming along and pay here: ${url}`;
   }
   return url;
 }

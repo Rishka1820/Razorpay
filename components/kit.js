@@ -88,7 +88,7 @@ export function Providers({ children }) {
       } catch {}
     }
     tick();
-    const iv = setInterval(tick, 4000);
+    const iv = setInterval(tick, 2000);
     return () => {
       alive = false;
       clearInterval(iv);
@@ -220,7 +220,7 @@ export function Pill({ tone = '', children }) {
 export function Field({ label, ai, children }) {
   return (
     <div className="field">
-      <label>{label}{ai && <span className="ai">AI</span>}</label>
+      <label>{label}</label>
       {children}
     </div>
   );
