@@ -103,7 +103,8 @@ export function eventLine(e, t, o) {
   switch (e.type) {
     case 'created': return t('Order created from {src}', { src: t(d.source === 'bill' ? 'a bill photo' : d.source === 'chat' ? 'a chat' : 'scratch') });
     case 'bill_advance': return t('Advance {amt} recorded from the bill ({m})', { amt: A(d.amount), m: methodLabel(d.method, t) });
-    case 'shared': return t('Order link shared');
+    case 'shared': return t(d.kind === 'remind' ? 'Payment reminder sent' : d.kind === 'pay' ? 'Payment request sent to the customer' : d.kind === 'change' ? 'Change sent for approval' : 'Order link shared');
+    case 'called': return t('You called the customer');
     case 'accepted': return t('Customer accepted the order and terms');
     case 'request_created': return t('Payment request sent: {amt} ({step})', { amt: A(d.amount), step: t(d.step) });
     case 'request_replaced': return t('Old request for {amt} cancelled and replaced', { amt: A(d.amount) });
@@ -199,6 +200,11 @@ export function shareMessage(o, kind, origin) {
   const d = o.d;
   if (kind === 'order') return `Hi ${name}, here is your order for ${o.item} (${inr(o.total)}). Please open it, check the details and tap Accept: ${url}`;
   if (kind === 'change') return `Hi ${name}, I have added the change we discussed. The new total is ${inr(d.pendingVersion ? d.pendingVersion.total : o.total)}. Please check and accept it here: ${url}`;
+  if (kind === 'remind') {
+    const link = o.activeRequest?.url || url;
+    const due = o.collectOn ? ` (due ${fmtDate(o.collectOn)})` : '';
+    return `Hi ${name}, a gentle reminder: ${inr(o.activeRequest?.amount ?? d.dueNow)} for your ${o.item}${due}. You can pay here: ${link}\nIf you have already paid, please reply here and I will check.`;
+  }
   if (kind === 'pay') {
     const link = o.activeRequest?.url || url;
     if (o.stage === 'ready') return `Hi ${name}, your ${o.item} is ready! Photo and details are here: ${url}\nPlease pay ${inr(o.activeRequest?.amount ?? d.dueNow)} to dispatch: ${link}`;

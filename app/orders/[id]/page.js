@@ -5,8 +5,8 @@ import { Field, Icon, Pill, Sheet, Shell, Spinner, useApp } from '@/components/k
 import { CancelSheet, ChangeSheet, CollectSheet, DispatchSheet, ManualSheet, ReadySheet, RemitSheet } from '@/components/ordersheets';
 import { PaymentList, Steps, Timeline, VersionList, shareMessage, statusChip } from '@/components/order';
 import { api, copyText, fileToDataUrl, getDemoChat, usePoll, waLink } from '@/lib/client';
-import { cumTargets } from '@/lib/model';
-import { fmtDate, inr, prettyPhone } from '@/lib/format';
+import { bucket, cumTargets } from '@/lib/model';
+import { daysBetween, fmtDate, inr, prettyPhone } from '@/lib/format';
 
 export default function OrderPage({ params }) {
   const { id } = params;
@@ -55,6 +55,17 @@ export default function OrderPage({ params }) {
   async function copyLink(url) {
     toast((await copyText(url)) ? t('Link copied') : t('Copy failed'));
   }
+
+  async function remind() {
+    let ord = o;
+    if (!o.activeRequest || o.activeRequest.amount !== d.dueNow) {
+      ord = await act('request_payment', {});
+      if (!ord) return;
+    }
+    await share('remind', ord);
+  }
+  const chase = !['awaiting_acceptance', 'cancelled'].includes(o.stage) && d.dueNow > 0 && ['overdue', 'today'].includes(bucket(o, o.today));
+  const lateDays = o.collectOn ? daysBetween(o.collectOn, o.today) : 0;
 
   const ctx = { o, d, t, toast, busy, act, setSheet, share, copyLink };
   const closed = o.stage === 'cancelled' || (o.stage === 'delivered' && d.remaining === 0);
@@ -108,6 +119,17 @@ export default function OrderPage({ params }) {
             <button className="btn ghost" disabled={busy} onClick={() => act('reject_claim', { claimId: d.pendingClaim.id }, 'Marked as not received')}>{t('Not received')}</button>
             <button className="btn" disabled={busy} onClick={() => act('confirm_claim', { claimId: d.pendingClaim.id }, 'Payment confirmed')}>{t('Received')}</button>
           </div>
+        </div>
+      )}
+
+      {chase && (
+        <div className="card col">
+          <div className="bold">{lateDays > 0 ? t('{amt} is overdue by {n} days', { amt: inr(d.dueNow), n: lateDays }) : t('{amt} is due today', { amt: inr(d.dueNow) })}</div>
+          <div className="btnrow">
+            <a className="btn ghost" href={o.customer.phone ? `tel:+${o.customer.phone}` : undefined} aria-disabled={!o.customer.phone} onClick={() => o.customer.phone && act('called')} style={o.customer.phone ? undefined : { opacity: 0.45, pointerEvents: 'none' }}><Icon n="phone" />{t('Call')}</a>
+            <button className="btn" disabled={busy} onClick={remind}><Icon n="chat" />{t('Remind on WhatsApp')}</button>
+          </div>
+          <div className="tiny muted">{t('The reminder carries a payment link for the exact amount due.')}</div>
         </div>
       )}
 
