@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Field, Icon, Pill, Sheet, Shell, Spinner, useApp } from '@/components/kit';
-import { CancelSheet, ChangeSheet, CollectSheet, DispatchSheet, ManualSheet, ReadySheet, RemitSheet } from '@/components/ordersheets';
+import { CancelSheet, ChangeSheet, CollectSheet, DeliverySheet, DispatchSheet, ManualSheet, ReadySheet, RemitSheet } from '@/components/ordersheets';
 import { PaymentList, Steps, Timeline, VersionList, shareMessage, statusChip, stepLabel } from '@/components/order';
 import { api, copyText, fileToDataUrl, getDemoChat, usePoll, waLink } from '@/lib/client';
 import { bucket, cumTargets } from '@/lib/model';
@@ -98,12 +98,12 @@ export default function OrderPage({ params }) {
         </div>
         <Steps o={o} />
         <div className="row between small">
-          <span className="muted">{t('Still to come')}: <b className="num">{inr(d.remaining)}</b></span>
+          <span className="muted">{t('Remaining balance')}: <b className="num">{inr(d.remaining)}</b></span>
           {o.deliveryDate && <span className="muted">{t('Deliver by')} {fmtDate(o.deliveryDate)}</span>}
         </div>
         {d.refundDue > 0 && <div className="note bad">{t('Refund {amt} to the customer. They\'ve paid more than the new total.', { amt: inr(d.refundDue) })}</div>}
         {d.pendingVersion && (
-          <div className="note warn">{t('Waiting for the customer to accept the change to {amt} (v{n}).', { amt: inr(d.pendingVersion.total), n: d.pendingVersion.n })}
+          <div className="note warn">{t('Waiting for the customer to accept the change to {amt} (v{n}).', { amt: inr(d.pendingVersion.total), n: d.pendingVersion.n })} {t('The original order stays agreed until they approve.')}
             <div className="btnrow" style={{ marginTop: 8 }}>
               <button className="btn sm ghost" onClick={() => share('change')}><Icon n="share" s={16} />{t('Send on WhatsApp')}</button>
             </div>
@@ -156,8 +156,12 @@ export default function OrderPage({ params }) {
           {role === 'owner' ? (
             <button className="btn ghost" onClick={() => setSheet('change')}>{t('Revise order')}</button>
           ) : (
-            <button className="btn ghost" onClick={() => toast(t('Only the owner can change prices'))} style={{ opacity: 0.6 }}>{t('Revise order')}</button>
+            <div className="col" style={{ gap: 4, flex: 1 }}>
+              <button className="btn ghost" disabled>{t('Revise order')}</button>
+              <div className="tiny muted">{t('Only the owner can revise an order. Ask the owner.')}</div>
+            </div>
           )}
+          {role === 'owner' && <button className="btn ghost" onClick={() => setSheet('delivery')}>{t('Change delivery date')}</button>}
         </div>
       )}
 
@@ -167,7 +171,7 @@ export default function OrderPage({ params }) {
       </section>
 
       <section className="card col">
-        <div className="sec" style={{ padding: 0 }}><span>{t('Versions of this order')}</span></div>
+        <div className="sec" style={{ padding: 0 }}><span>{t('Order history')}</span></div>
         <VersionList o={o} />
         <div className="small muted">{o.acceptedAt ? t('Terms accepted {when} via {how}', { when: fmtDate(o.acceptedAt.slice(0, 10)), how: o.acceptedVia === 'bill' ? t('paper bill') : t('order link') }) : t('Terms not accepted yet')}</div>
       </section>
@@ -182,7 +186,7 @@ export default function OrderPage({ params }) {
       </section>
 
       <section className="card col">
-        <div className="sec" style={{ padding: 0 }}><span>{t('History')}</span></div>
+        <div className="sec" style={{ padding: 0 }}><span>{t('Activity')}</span></div>
         <Timeline o={o} />
       </section>
 
@@ -197,6 +201,7 @@ export default function OrderPage({ params }) {
       {sheet === 'dispatch' && <DispatchSheet c={ctx} />}
       {sheet === 'remit' && <RemitSheet c={ctx} />}
       {sheet === 'cancel' && <CancelSheet c={ctx} />}
+      {sheet === 'delivery' && <DeliverySheet c={ctx} />}
     </Shell>
   );
 
@@ -221,7 +226,7 @@ export default function OrderPage({ params }) {
             <>
               <div className="row between"><div><div className="tiny muted">{t('Due now')} · {t(stepLabel(o, d.step))}</div><div className="big">{inr(d.dueNow)}</div></div>
                 {o.activeRequest && <Pill tone="info">{t('Request open')}</Pill>}</div>
-              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{t('Collect {amt}', { amt: inr(d.dueNow) })}</button>
+              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{o.activeRequest ? t('View payment request') : t('Ask for {amt}', { amt: inr(d.dueNow) })}</button>
               {d.auto && !o.activeRequest && <button className="btn ghost" disabled={busy} onClick={() => act('set_stage_date', { key: d.step.key, date: addDays(o.today, 7) }, 'Date moved by a week')}>{t('Not yet. Move the date by a week')}</button>}
             </>
           ) : (
@@ -233,7 +238,7 @@ export default function OrderPage({ params }) {
               {t('{name} reached: ask for {amt}', { name: t(d.nextStep.name), amt: inr(d.nextAmount) })}
             </button>
           )}
-          <button className="btn ghost" onClick={() => setSheet('ready')}><Icon n="camera" />{t('Mark ready with a photo')}</button>
+          <button className="btn ghost" onClick={() => setSheet('ready')}><Icon n="camera" />{t('Mark order ready')}</button>
         </div>
       );
     }
@@ -251,7 +256,7 @@ export default function OrderPage({ params }) {
             <>
               <div className="row between"><div><div className="tiny muted">{t('Due now')} · {t(stepLabel(o, d.step))}</div><div className="big">{inr(d.dueNow)}</div></div>
                 {o.activeRequest && <Pill tone="info">{t('Request open')}</Pill>}</div>
-              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{t(o.fulfilment === 'pickup' ? 'Ask for {amt} before pickup' : 'Ask for {amt} before dispatch', { amt: inr(d.dueNow) })}</button>
+              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{o.activeRequest ? t('View payment request') : t(o.fulfilment === 'pickup' ? 'Ask for {amt} before pickup' : 'Ask for {amt} before dispatch', { amt: inr(d.dueNow) })}</button>
             </>
           )}
           <button className="btn ghost" onClick={() => setSheet('dispatch')}><Icon n="truck" />{o.fulfilment === 'pickup' ? t('Hand over in person') : t('Dispatch')}</button>
@@ -283,7 +288,7 @@ export default function OrderPage({ params }) {
       return (
         <div className="card col">
           <div><div className="tiny muted">{t('Still to collect')}</div><div className="big">{inr(d.remaining)}</div></div>
-          <button className="btn" onClick={() => setSheet('collect')}>{t('Collect {amt}', { amt: inr(d.dueNow) })}</button>
+          <button className="btn" onClick={() => setSheet('collect')}>{o.activeRequest ? t('View payment request') : t('Ask for {amt}', { amt: inr(d.dueNow) })}</button>
         </div>
       );
     }

@@ -127,7 +127,7 @@ export default function ChatSim() {
     return (
       <div className="phone" style={{ background: '#fff' }}>
         <header className="top" style={{ background: '#1f4d3f', color: '#fff' }}><h1>Chats</h1></header>
-        <div className="demo-bar"><span>Chat simulator for the demo video. Not WhatsApp.</span></div>
+        <div className="demo-bar"><span>Customer chat view</span></div>
         <div className="main" style={{ background: '#fff' }}>
           {liveOrders.map((o) => {
             const last = o.thread[o.thread.length - 1];

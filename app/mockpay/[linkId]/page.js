@@ -28,7 +28,7 @@ export default function MockPay({ params }) {
 
   return (
     <div className="phone" style={{ background: '#fff' }}>
-      <div className="demo-bar"><span>Simulated checkout. With Razorpay test keys, this page is Razorpay’s hosted checkout.</span></div>
+      <div className="demo-bar"><span>Razorpay Checkout · Test mode</span></div>
       <main className="main" style={{ gap: 14 }}>
         <div className="row">
           <div className="avatar" style={{ background: '#e8f0ff' }}>A</div>

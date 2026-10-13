@@ -51,7 +51,6 @@ export function CollectSheet({ c }) {
           </>
         )
       )}
-      <button className="btn ghost" onClick={() => toast(t('A QR code for the exact amount works in live mode. It isn\'t shown in this prototype.'))}><Icon n="qr" />{t('Show QR for this amount')}</button>
       <hr className="divider" />
       <div className="small muted">{t('Did the customer pay you another way?')}</div>
       <button className="btn ghost" onClick={() => setSheet('manual')}>{t('Mark paid outside Razorpay')}</button>
@@ -186,6 +185,24 @@ export function CancelSheet({ c }) {
       ))}
       {mode === 'custom' && <Field label={t('Refund amount (₹)')}><input id="refund" inputMode="numeric" value={custom} onChange={(e) => setCustom(e.target.value.replace(/\D/g, ''))} /></Field>}
       <button className="btn danger" disabled={busy} onClick={async () => { if (await act('cancel', { refundAmount: amount }, 'Order cancelled')) setSheet(null); }}>{t('Cancel order and refund {amt}', { amt: inr(Math.min(amount, d.paid)) })}</button>
+    </Sheet>
+  );
+}
+
+export function DeliverySheet({ c }) {
+  const { o, t, busy, act, setSheet } = c;
+  const [date, setDate] = useState(o.deliveryDate || '');
+  const [reason, setReason] = useState('');
+  return (
+    <Sheet title={t('Change delivery date')} onClose={() => setSheet(null)}>
+      <div className="small muted">{t('Your customer is told about the new date. The earlier date stays in the order history.')}</div>
+      <Field label={t('New delivery date')}>
+        <input id="newdate" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+      </Field>
+      <Field label={t('Reason (optional)')}>
+        <input id="reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t('For example: fabric arrived late')} />
+      </Field>
+      <button className="btn" disabled={busy || !date || date === o.deliveryDate} onClick={async () => { if (await act('change_delivery', { date, reason }, 'Delivery date updated')) setSheet(null); }}>{t('Update delivery date')}</button>
     </Sheet>
   );
 }

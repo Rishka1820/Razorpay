@@ -13,6 +13,7 @@ export function statusChip(o, t) {
   const map = {
     verify: ['warn', 'Verify payment'],
     request: ['warn', 'Change requested'],
+    sent: ['info', 'Request sent'],
     overdue: ['bad', 'Overdue'],
     today: ['info', 'Collect today'],
     dispatch: ['ok', 'Ready to dispatch'],
@@ -65,7 +66,7 @@ export function OrderRow({ o }) {
   const { t } = useApp();
   const d = o.d;
   const b = bucket(o, o.today);
-  const showDue = ['overdue', 'today', 'upcoming'].includes(b);
+  const showDue = ['overdue', 'today', 'upcoming', 'sent'].includes(b);
   return (
     <Link href={`/orders/${o.id}`} className="orow">
       <div className="avatar">{o.customer.name.slice(0, 1).toUpperCase()}</div>
@@ -124,6 +125,9 @@ export function eventLine(e, t, o) {
     case 'version_declined': return t('Customer declined the change');
     case 'balance_recalculated': return t('Amount due recalculated: {was} to {now}', { was: A(d.was), now: A(d.now) });
     case 'progress_photo': return t('Progress photo sent with the {step} request', { step: t(d.step) });
+    case 'delivery_changed': return t('Delivery date moved from {from} to {to}', { from: d.from ? fmtDate(d.from) : '-', to: fmtDate(d.to) }) + (d.reason ? ` · ${d.reason}` : '');
+    case 'instalments_merged': return t('Unpaid {names} merged into the final balance of {amt}', { names: d.names.map((n) => t(n)).join(', '), amt: A(d.balance) });
+    case 'ready_cleared': return t('Added work approved: order is back in the making');
     case 'stage_date_set': return t('{name} payment date set to {date}', { name: t(d.name), date: fmtDate(d.date) });
     case 'milestone_unlocked': return t(d.byDate ? '{name} payment date reached: {amt} now due' : '{name} stage reached: {amt} now due', { name: t(d.name), amt: A(d.amount) });
     case 'ready': return t('Marked ready, photo {p}', { p: t(d.hasPhoto ? 'added' : 'not added') });

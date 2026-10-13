@@ -8,6 +8,8 @@ import { inr, prettyPhone } from '@/lib/format';
 
 const EMPTY = { name: '', phone: '', item: '', total: '', advance: '', advMethod: 'cash', advRef: '', deliveryDate: '', plan: '40-30-30', ai: {}, engine: null };
 
+const SAMPLE = `[10:02] Priya: Hi, I'd like your 3-seater sofa in olive velvet\n[10:05] Ananya: Sure! Final price ₹38,000. Delivery by 2 Nov\n[10:06] Priya: Okay, confirm my order: 3-seater sofa in olive velvet, ₹38,000. I'll pay 40% advance\n[10:07] Ananya: Done`;
+
 export default function NewOrder() {
   const { t, toast } = useApp();
   const router = useRouter();
@@ -28,7 +30,7 @@ export default function NewOrder() {
     }
   }
 
-  // A chat can arrive without copy and paste: from the chat simulator, or shared from WhatsApp into the installed app.
+  // A chat can arrive without copy and paste: from the customer chat, or shared from WhatsApp into the installed app.
   useEffect(() => {
     let incoming = '';
     try {
@@ -63,9 +65,12 @@ export default function NewOrder() {
         advMethod: ['cash', 'upi_personal', 'bank'].includes(p.advance_method) ? p.advance_method : 'cash',
         advRef: m === 'bill' ? 'Bill photo' : '',
         deliveryDate: p.delivery_date || '',
-        plan: pct && pct <= 40 ? '40-30-30' : '50-50',
+        plan: !pct ? '40-30-30' : pct === 40 ? '40-30-30' : pct === 50 ? '50-50' : PLANS[`${Math.round(pct / 5) * 5}-${100 - Math.round(pct / 5) * 5}`] ? `${Math.round(pct / 5) * 5}-${100 - Math.round(pct / 5) * 5}` : '50-50',
+        statedPct: pct || null,
+        flags: p.flags || {},
         notes: p.notes || '',
         engine: p.engine,
+        midDate: undefined,
         ai: { name: !!p.customer_name, phone: !!p.phone, item: !!p.item, total: !!p.total_inr, advance: !!p.advance_received_inr, deliveryDate: !!p.delivery_date },
         source: m,
       });
@@ -106,7 +111,7 @@ export default function NewOrder() {
   const engineNote = {
     claude: ['ok', 'Read by Claude. Check every field before you continue.'],
     rules: ['ok', 'Filled in from your chat. Check every field before you continue.'],
-    demo: ['warn', 'Demo reading: no AI key is set, so this is a sample bill. With a key, Claude reads your own photo.'],
+    demo: ['warn', 'Sample bill shown. Claude reads your own photo once it is connected.'],
   };
 
   return (
@@ -124,6 +129,7 @@ export default function NewOrder() {
               <Field label={t('Paste a chat from WhatsApp or Instagram, or share it straight to this app')}>
                 <textarea id="chat" value={text} onChange={(e) => setText(e.target.value)} placeholder={t('Paste here…')} />
               </Field>
+              <button className="btn ghost" onClick={() => setText(SAMPLE)}>{t('Try a sample conversation')}</button>
               <button className="btn" disabled={busy || !text.trim()} onClick={() => read()}>{busy ? <Spinner /> : <Icon n="chat" />}{t('Read order from chat')}</button>
             </div>
           )}
@@ -145,9 +151,16 @@ export default function NewOrder() {
       {form && (
         <>
           {form.engine && <div className={`note ${engineNote[form.engine][0]}`}>{t(engineNote[form.engine][1])}</div>}
+          {form.flags?.total_ambiguous && (
+            <div className="note warn">{t('The chat mentions more than one price')}: {form.flags.alternatives.map((v) => inr(v)).join(', ')}. {t('We used the latest one. Please confirm the total.')}</div>
+          )}
+          {form.statedPct && form.statedPct !== 40 && form.statedPct !== 50 && (
+            <div className="note ok">{t('The chat says')} {form.statedPct}% {t('advance, so the plan below uses it. Change it if that is not what was agreed.')}</div>
+          )}
           <div className="card col">
             <Field label={t('Customer name')} ai={form.ai.name}>
               <input id="name" value={form.name} onChange={(e) => set('name', e.target.value)} />
+              {form.source === 'chat' && !form.name && <span className="tiny" style={{ color: 'var(--warn)' }}>{t('Customer name not found in the chat')}</span>}
             </Field>
             <Field label={t('WhatsApp number')} ai={form.ai.phone}>
               <input id="phone" inputMode="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="98xxxxxxxx" />
@@ -159,9 +172,11 @@ export default function NewOrder() {
             <div className="grid2">
               <Field label={t('Agreed total (₹)')} ai={form.ai.total}>
                 <input id="total" inputMode="numeric" value={form.total} onChange={(e) => set('total', e.target.value.replace(/\D/g, ''))} />
+                {form.source === 'chat' && !form.total && <span className="tiny" style={{ color: 'var(--warn)' }}>{t('Price not found in the chat')}</span>}
               </Field>
               <Field label={t('Deliver by')} ai={form.ai.deliveryDate}>
                 <input id="date" type="date" value={form.deliveryDate} onChange={(e) => set('deliveryDate', e.target.value)} />
+                {form.source === 'chat' && !form.deliveryDate && <span className="tiny" style={{ color: 'var(--warn)' }}>{t('Date not found in the chat')}</span>}
               </Field>
             </div>
           </div>
@@ -169,7 +184,7 @@ export default function NewOrder() {
           <div className="card col">
             <div className="bold">{t('Payment plan')}</div>
             <div className="seg">
-              {Object.entries(PLANS).map(([k, p]) => (
+              {Object.entries(PLANS).filter(([k]) => k === '40-30-30' || k === '50-50' || k === form.plan).map(([k, p]) => (
                 <button key={k} className={form.plan === k ? 'on' : ''} onClick={() => set('plan', k)}>{p.label}</button>
               ))}
             </div>
@@ -182,7 +197,7 @@ export default function NewOrder() {
 
           {form.plan === '40-30-30' && form.deliveryDate && (
             <div className="card col">
-              <div className="bold">{t('Midway payment date')}</div>
+              <div className="bold">{t('Midway payment date (suggested, please confirm)')}</div>
               <div className="small muted">{t('Agreed with the customer now. On this date the app asks you to collect it. You can also ask earlier.')}</div>
               <input id="mid" type="date" value={form.midDate ?? (defaultStageDates(form.plan, form.deliveryDate).frame_ready || '')} onChange={(e) => set('midDate', e.target.value)} />
             </div>

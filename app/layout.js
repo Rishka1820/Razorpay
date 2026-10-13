@@ -6,8 +6,8 @@ export const metadata = {
   manifest: '/manifest.webmanifest',
   appleWebApp: { capable: true, title: 'Orders', statusBarStyle: 'default' },
   icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
-  title: 'Razorpay Orders (concept prototype)',
-  description: 'Concept prototype: made-to-order sellers collect the correct amount due, with customer-approved changes.',
+  title: 'Razorpay OrderBook',
+  description: 'The order ledger for social sellers. Every change agreed. Every payment counted.',
 };
 
 export const viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#ffffff' };

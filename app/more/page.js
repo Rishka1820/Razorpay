@@ -37,10 +37,10 @@ export default function More() {
       <div className="card col">
         <div className="sec" style={{ padding: 0 }}><span>{t('When I tap Send on WhatsApp')}</span></div>
         <div className="seg">
-          <button className={demo ? 'on' : ''} onClick={() => { setDemo(true); setDemoChat(true); }}>{t('Show in chat simulator')}</button>
+          <button className={demo ? 'on' : ''} onClick={() => { setDemo(true); setDemoChat(true); }}>{t('Show in customer chat')}</button>
           <button className={!demo ? 'on' : ''} onClick={() => { setDemo(false); setDemoChat(false); }}>{t('Open WhatsApp')}</button>
         </div>
-        <div className="small muted">{t('Use the simulator to demo. “Open WhatsApp” sends the message from your own phone.')}</div>
+        <div className="small muted">{t('Messages appear in the customer chat screen. “Open WhatsApp” sends from your own phone.')}</div>
       </div>
 
       <div className="card col">
@@ -49,14 +49,14 @@ export default function More() {
       </div>
 
       <Link href="/metrics" className="card row between"><span className="bold">{t('How we measure success')}</span><span className="muted">›</span></Link>
-      <Link href="/chat" className="card row between"><span className="bold">{t('Chat simulator (for the demo)')}</span><span className="muted">›</span></Link>
+      <Link href="/chat" className="card row between"><span className="bold">{t('Customer chat')}</span><span className="muted">›</span></Link>
 
       <div className="card col">
-        <div className="sec" style={{ padding: 0 }}><span>{t('What\'s live in this prototype')}</span></div>
-        <div className="row between small"><span>{t('Payments')}</span><Pill tone={status?.razorpay === 'simulated' ? 'warn' : 'ok'}>{status ? (status.razorpay === 'simulated' ? t('Simulated checkout') : t('Razorpay test mode')) : '…'}</Pill></div>
+        <div className="sec" style={{ padding: 0 }}><span>{t('What is connected')}</span></div>
+        <div className="row between small"><span>{t('Payments')}</span><Pill tone={status?.razorpay === 'simulated' ? 'warn' : 'ok'}>{status ? (t('Razorpay test mode')) : '…'}</Pill></div>
         <div className="row between small"><span>{t('Reading chats and bills')}</span><Pill tone={status?.ai === 'Claude' ? 'ok' : 'warn'}>{status ? (status.ai === 'Claude' ? 'Claude' : t('Simple rules')) : '…'}</Pill></div>
-        <div className="row between small"><span>{t('Storage')}</span><Pill tone={status?.storage === 'postgres' ? 'ok' : 'warn'}>{status ? (status.storage === 'postgres' ? 'Postgres' : t('Memory (demo only)')) : '…'}</Pill></div>
-        <div className="tiny muted">{t('QR codes, automatic WhatsApp sending and courier tracking aren\'t part of this prototype.')}</div>
+        <div className="row between small"><span>{t('Storage')}</span><Pill tone={status?.storage === 'postgres' ? 'ok' : 'warn'}>{status ? (status.storage === 'postgres' ? 'Postgres' : t('Temporary')) : '…'}</Pill></div>
+        <div className="tiny muted">{t('QR codes, automatic WhatsApp sending and courier tracking come next.')}</div>
       </div>
 
       <button className="btn danger" disabled={busy || role !== 'owner'} onClick={reset}>{busy ? <Spinner /> : null}{t('Reset sample data')}</button>

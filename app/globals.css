@@ -208,3 +208,4 @@ h1, h2, h3, p { margin: 0; }
 .nrow .nd.paid, .nrow .nd.ok { background: var(--ok-bg); color: var(--ok); }
 .nrow .nd.verify, .nrow .nd.change, .nrow .nd.warn, .nrow .nd.due { background: var(--warn-bg); color: var(--warn); }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.main:has(.fab) { padding-bottom: 150px; }

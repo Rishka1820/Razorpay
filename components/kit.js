@@ -164,7 +164,7 @@ export function Bell() {
 export function Shell({ title, sub, back, right, active, nav = true, children }) {
   const { t, toast } = useApp();
   const router = useRouter();
-  const stub = (name) => toast(t('{name} is part of the Razorpay app, but not this prototype', { name: t(name) }));
+  const stub = (name) => toast(t('{name} opens in the full Razorpay app', { name: t(name) }));
   return (
     <div className="phone">
       <header className="top">

@@ -71,6 +71,7 @@ export default function CustomerPage({ params }) {
           {d.remaining > 0 && o.stage !== 'awaiting_acceptance' && <div className="row between small"><span className="muted">{t('Remaining')}</span><b className="num">{inr(d.remaining)}</b></div>}
           {o.stage !== 'awaiting_acceptance' && <Steps o={o} />}
           {o.deliveryDate && <div className="small muted">{t('Delivery by')} {fmtDate(o.deliveryDate)}</div>}
+          {(o.deliveryHistory || []).slice(-1).map((h) => <div key={h.at} className="note warn">{t('Delivery moved from {from} to {to}', { from: h.from ? fmtDate(h.from) : '-', to: fmtDate(h.to) })}{h.reason ? ` · ${h.reason}` : ''}</div>)}
         </div>
 
         {o.stage === 'cancelled' && <div className="note bad">{t('This order was cancelled.')}</div>}
@@ -164,7 +165,7 @@ export default function CustomerPage({ params }) {
         <section className="card col">
           <div className="sec" style={{ padding: 0 }}><span>{t('Versions of this order')}</span></div>
           <VersionList o={o} />
-          {o.acceptedAt && <div className="small muted">{t('You accepted the terms on {when}', { when: fmtDateTime(o.acceptedAt) })}</div>}
+          {o.acceptedAt && <div className="small muted">{o.acceptedVia === 'bill' ? t('Recorded as accepted via paper bill on {when}', { when: fmtDate(o.acceptedAt.slice(0, 10)) }) : t('You accepted the terms on {when}', { when: fmtDateTime(o.acceptedAt) })}</div>}
         </section>
       </main>
 

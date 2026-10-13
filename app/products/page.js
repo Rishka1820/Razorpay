@@ -5,7 +5,7 @@ import { Icon, Shell, useApp } from '@/components/kit';
 export default function Products() {
   const { t, toast } = useApp();
   const router = useRouter();
-  const stub = (name) => toast(t('{name} is part of the Razorpay app, but not this prototype', { name: t(name) }));
+  const stub = (name) => toast(t('{name} opens in the full Razorpay app', { name: t(name) }));
   const items = [
     { n: 'link', h: 'Payment links', d: 'Collect payments instantly by sharing a simple link' },
     { n: 'qr', h: 'QR Codes', d: 'Collect payments with a QR code' },

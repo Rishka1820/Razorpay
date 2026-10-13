@@ -10,6 +10,7 @@ import { dayOf, inr, todayIST } from '@/lib/format';
 const TITLES = {
   verify: 'Verify payment',
   request: 'Change requested',
+  sent: 'Request sent, payment pending',
   overdue: 'Overdue',
   today: 'Collect today',
   dispatch: 'Ready to dispatch',
@@ -21,7 +22,7 @@ const TITLES = {
   done: 'Done',
   cancelled: 'Cancelled',
 };
-const TODAY_SET = ['verify', 'request', 'overdue', 'today', 'dispatch', 'courier', 'waiting'];
+const TODAY_SET = ['verify', 'request', 'sent', 'overdue', 'today', 'dispatch', 'courier', 'waiting'];
 
 export default function Orders() {
   const { t } = useApp();
@@ -33,7 +34,7 @@ export default function Orders() {
 
   const filtered = orders.filter((o) => !q.trim() || (o.customer.name + ' ' + o.item).toLowerCase().includes(q.trim().toLowerCase()));
   const groups = BUCKET_ORDER.map((b) => [b, filtered.filter((o) => bucket(o, today) === b)]).filter(([b, l]) => l.length && (tab === 'all' || TODAY_SET.includes(b)));
-  const due = orders.filter((o) => ['overdue', 'today'].includes(bucket(o, today)));
+  const due = orders.filter((o) => ['overdue', 'today', 'sent'].includes(bucket(o, today)));
   const dueAmt = due.reduce((a, o) => a + o.d.dueNow, 0);
   const dues = totalDues(orders);
 
@@ -53,7 +54,7 @@ export default function Orders() {
       </div>
 
       <div className="seg">
-        <button className={tab === 'today' ? 'on' : ''} onClick={() => setTab('today')}>{t('Today')}</button>
+        <button className={tab === 'today' ? 'on' : ''} onClick={() => setTab('today')}>{t('Needs attention')}</button>
         <button className={tab === 'all' ? 'on' : ''} onClick={() => setTab('all')}>{t('All orders')}</button>
       </div>
       <div className="field">

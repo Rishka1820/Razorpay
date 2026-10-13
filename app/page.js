@@ -17,11 +17,12 @@ export default function Home() {
   const orders = data?.orders || [];
   const today = todayIST();
   const collect = orders.filter((o) => ['overdue', 'today'].includes(bucket(o, today)));
+  const pending = orders.filter((o) => bucket(o, today) === 'sent');
   const attention = orders.filter((o) => ['verify', 'request'].includes(bucket(o, today)));
-  const collectAmt = collect.reduce((a, o) => a + o.d.dueNow, 0);
+  const collectAmt = [...collect, ...pending].reduce((a, o) => a + o.d.dueNow, 0);
   const receivedToday = orders.flatMap((o) => o.payments).filter((p) => dayOf(p.at) === today).reduce((a, p) => a + p.amount, 0);
   const dues = totalDues(orders);
-  const stub = (name) => toast(t('{name} is part of the Razorpay app, but not this prototype', { name: t(name) }));
+  const stub = (name) => toast(t('{name} opens in the full Razorpay app', { name: t(name) }));
 
   const shortcuts = [
     { n: 'qr', label: 'QR codes', on: () => stub('QR code') },
@@ -53,8 +54,8 @@ export default function Home() {
         </div>
         <div className="strip">
           <div className="grow">
-            <div className="t1">{t('{n} orders need a payment request', { n: collect.length })}</div>
-            <div className="t2">{inr(collectAmt)} {t('to collect today')}</div>
+            <div className="t1">{collect.length > 0 ? t('{n} orders need a payment request', { n: collect.length }) : pending.length > 0 ? t('{n} payment requests are waiting to be paid', { n: pending.length }) : t('No payments to chase')}</div>
+            <div className="t2">{inr(collectAmt)} {t('to collect')}</div>
           </div>
           <Link href="/orders">{t('Open Orders')}</Link>
         </div>
@@ -78,8 +79,15 @@ export default function Home() {
 
       {collect.length > 0 && (
         <div className="col">
-          <div className="sec"><span>{t('To collect today')}</span></div>
+          <div className="sec"><span>{t('Needs a payment request')}</span></div>
           {collect.slice(0, 3).map((o) => <OrderRow key={o.id} o={o} />)}
+        </div>
+      )}
+
+      {pending.length > 0 && (
+        <div className="col">
+          <div className="sec"><span>{t('Request sent, payment pending')}</span></div>
+          {pending.slice(0, 3).map((o) => <OrderRow key={o.id} o={o} />)}
         </div>
       )}
 
