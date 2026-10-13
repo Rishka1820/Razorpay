@@ -19,10 +19,10 @@ h1 em{font-style:normal;color:#1364f1}.dark h1 em{color:#7fb0ff}
 .phones.hide{opacity:0;transform:scale(.96)}
 .ph{width:420px;height:810px;border-radius:46px;background:#0b0f1e;padding:14px;box-shadow:0 30px 80px rgba(7,35,80,.35);transform:scale(1.11);transform-origin:top center;margin-bottom:90px}
 .ph iframe{width:392px;height:782px;border:0;border-radius:34px;background:#fff;display:block}
-.ph{transition:transform .7s cubic-bezier(.3,.7,.2,1),opacity .5s}
+.ph{transition:opacity .3s}
 .f-left .ph:nth-child(1){transform:translateX(238px) scale(1.14);box-shadow:0 40px 100px rgba(7,35,80,.5);z-index:2}.f-left .ph:nth-child(2){transform:translateX(238px) scale(1.0);opacity:0;pointer-events:none}
 .f-right .ph:nth-child(2){transform:translateX(-238px) scale(1.14);box-shadow:0 40px 100px rgba(7,35,80,.5);z-index:2}.f-right .ph:nth-child(1){transform:translateX(-238px) scale(1.0);opacity:0;pointer-events:none}
-.lab{transition:left .7s cubic-bezier(.3,.7,.2,1),opacity .4s}
+.lab{transition:opacity .3s}
 .phones.enter .ph:nth-child(1){animation:slideL .8s cubic-bezier(.2,.8,.2,1) both}
 .phones.enter .ph:nth-child(2){animation:slideR .8s .1s cubic-bezier(.2,.8,.2,1) both}
 @keyframes slideL{from{opacity:0;transform:translateX(-120px) scale(1.11)}to{opacity:1;transform:scale(1.11)}}
@@ -107,5 +107,7 @@ window.zoom=(x,y,k)=>{const p=$('ph');p.style.transformOrigin=x+'px '+(y-158)+'p
 window.unzoom=()=>{$('ph').style.transform='none'};
 window.hl=(x,y,w,h,ms)=>{const r=document.createElement('div');r.className='ring';r.style.left=(x-8)+'px';r.style.top=(y-8)+'px';r.style.width=(w+16)+'px';r.style.height=(h+16)+'px';document.body.appendChild(r);
  setTimeout(()=>{r.classList.add('out');setTimeout(()=>r.remove(),400)},ms||2200)};
+window.cover=(src,x,y,w,h)=>{let i=document.getElementById('cov');if(i)i.remove();i=document.createElement('img');i.id='cov';i.src=src;i.style.cssText='position:absolute;z-index:9;pointer-events:none;border-radius:34px;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;transition:opacity .18s';document.body.appendChild(i)};
+window.uncover=()=>{const i=document.getElementById('cov');if(i){i.style.opacity=0;setTimeout(()=>i.remove(),220)}};
 window.card=(html)=>{const c=$('card');if(html){c.innerHTML=html;c.style.display='flex';requestAnimationFrame(()=>c.classList.add('show'))}else{c.classList.remove('show');setTimeout(()=>{c.style.display='none'},700)}};
 </script></body></html>
