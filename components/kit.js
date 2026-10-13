@@ -113,8 +113,8 @@ export function Shell({ title, sub, back, right, active, nav = true, children })
           <Link href="/" className={active === 'home' ? 'on' : ''}><Icon n="home" />{t('Home')}</Link>
           <button onClick={() => stub('Payments')}><Icon n="rupee" />{t('Payments')}</button>
           <Link href="/orders" className={active === 'orders' ? 'on' : ''}><Icon n="list" />{t('Orders')}<span className="new">NEW</span></Link>
-          <button onClick={() => stub('Settlements')}><Icon n="bank" />{t('Settlements')}</button>
-          <Link href="/more" className={active === 'more' ? 'on' : ''}><Icon n="more" />{t('More')}</Link>
+          <button onClick={() => stub('Support')}><Icon n="chat" />{t('Support')}</button>
+          <Link href="/more" className={active === 'more' ? 'on' : ''}><Icon n="user" />{t('Account')}</Link>
         </nav>
       )}
     </div>

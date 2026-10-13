@@ -55,7 +55,7 @@ export default function CustomerPage({ params }) {
         <LangSwitch />
       </header>
       <main className="main" style={{ paddingBottom: 30 }}>
-        <div className="card col">
+        <div className="card col summary">
           {o.photo && <div className="photo"><img src={o.photo} alt="Your finished piece" /></div>}
           <div className="bold" style={{ fontSize: 17 }}>{o.item}</div>
           <div className="row between">

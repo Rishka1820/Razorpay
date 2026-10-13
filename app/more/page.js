@@ -22,7 +22,7 @@ export default function More() {
   }
 
   return (
-    <Shell active="more" title={t('More')}>
+    <Shell active="more" title={t('Account')}>
       <div className="card col">
         <div className="sec" style={{ padding: 0 }}><span>{t('Who is using the app')}</span></div>
         <div className="seg">

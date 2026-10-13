@@ -70,7 +70,7 @@ export default function OrderPage({ params }) {
       )}
 
       {/* money */}
-      <div className="card col">
+      <div className="card col summary">
         <div className="row between" style={{ alignItems: 'flex-start' }}>
           <div>
             <div className="tiny muted">{t('Agreed total')}{o.versions.filter((v) => v.status === 'accepted').length > 1 ? ` · v${Math.max(...o.versions.filter((v) => v.status === 'accepted').map((v) => v.n))}` : ''}</div>

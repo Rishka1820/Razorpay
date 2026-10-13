@@ -54,7 +54,7 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="card" style={{ borderColor: '#f6c7a8', background: '#fffaf6' }}>
+      <div className="card" style={{ borderColor: '#b9d1fb', background: '#f5f9ff' }}>
         <div className="row between">
           <div>
             <div className="bold">{t('To collect today')}</div>
