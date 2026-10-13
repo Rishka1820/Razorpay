@@ -40,7 +40,7 @@ export default function OrderPage({ params }) {
   if (!o) return <Shell title={t('Order')} back="/orders"><div className="empty">{t('Loading…')}</div></Shell>;
 
   const d = o.d;
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const origin = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
   const customerUrl = `${origin}/c/${o.id}`;
 
   async function share(kind, ord = o) {
