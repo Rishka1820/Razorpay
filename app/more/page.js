@@ -1,0 +1,54 @@
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
+import { LangSwitch, Pill, Shell, Spinner, useApp } from '@/components/kit';
+import { api, usePoll } from '@/lib/client';
+
+export default function More() {
+  const { t, role, setRole, toast } = useApp();
+  const { data: status } = usePoll('/api/status');
+  const [busy, setBusy] = useState(false);
+
+  async function reset() {
+    setBusy(true);
+    try {
+      await api('/api/reset', { method: 'POST' });
+      toast(t('Demo data reset'));
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Shell active="more" title={t('More')}>
+      <div className="card col">
+        <div className="sec" style={{ padding: 0 }}><span>{t('Who is using the app')}</span></div>
+        <div className="seg">
+          <button className={role === 'owner' ? 'on' : ''} onClick={() => setRole('owner')}>{t('Owner (Ananya)')}</button>
+          <button className={role === 'staff' ? 'on' : ''} onClick={() => setRole('staff')}>{t('Staff (Rohit)')}</button>
+        </div>
+        <div className="small muted">{t('Staff can see today’s list, collect payments and dispatch. Only the owner can change prices, cancel orders and refund. The server enforces this.')}</div>
+      </div>
+
+      <div className="card col">
+        <div className="sec" style={{ padding: 0 }}><span>{t('Language')}</span></div>
+        <div style={{ background: 'var(--navy)', borderRadius: 10, padding: 8, width: 'fit-content' }}><LangSwitch /></div>
+      </div>
+
+      <Link href="/metrics" className="card row between"><span className="bold">{t('How we measure success')}</span><span className="muted">›</span></Link>
+      <Link href="/chat" className="card row between"><span className="bold">{t('Chat simulator (for the demo)')}</span><span className="muted">›</span></Link>
+
+      <div className="card col">
+        <div className="sec" style={{ padding: 0 }}><span>{t('What is real in this prototype')}</span></div>
+        <div className="row between small"><span>{t('Payments')}</span><Pill tone={status?.razorpay === 'simulated' ? 'warn' : 'ok'}>{status ? (status.razorpay === 'simulated' ? t('Simulated checkout') : t('Razorpay test mode')) : '…'}</Pill></div>
+        <div className="row between small"><span>{t('Reading chats and bills')}</span><Pill tone={status?.ai === 'Claude' ? 'ok' : 'warn'}>{status ? (status.ai === 'Claude' ? 'Claude' : t('Simple rules')) : '…'}</Pill></div>
+        <div className="row between small"><span>{t('Storage')}</span><Pill tone={status?.storage === 'postgres' ? 'ok' : 'warn'}>{status ? (status.storage === 'postgres' ? 'Postgres' : t('Memory (demo only)')) : '…'}</Pill></div>
+        <div className="tiny muted">{t('QR codes, automatic WhatsApp sending and courier tracking are described in the product note and not built.')}</div>
+      </div>
+
+      <button className="btn danger" disabled={busy || role !== 'owner'} onClick={reset}>{busy ? <Spinner /> : null}{t('Reset demo data')}</button>
+    </Shell>
+  );
+}
