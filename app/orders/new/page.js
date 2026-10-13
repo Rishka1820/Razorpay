@@ -8,7 +8,7 @@ import { inr, prettyPhone } from '@/lib/format';
 
 const EMPTY = { name: '', phone: '', item: '', total: '', advance: '', advMethod: 'cash', advRef: '', deliveryDate: '', plan: '40-30-30', ai: {}, engine: null };
 
-const SAMPLE = `[10:02] Priya: Hi, I'd like your 3-seater sofa in olive velvet\n[10:05] Ananya: Sure! Final price ₹38,000. Delivery by 2 Nov\n[10:06] Priya: Okay, confirm my order: 3-seater sofa in olive velvet, ₹38,000. I'll pay 40% advance\n[10:07] Ananya: Done`;
+const SAMPLE = `[10:02] Priya: Hi, I'd like your 3-seater sofa in olive velvet\n[10:05] Tanushree: Sure! Final price ₹38,000. Delivery by 2 Nov\n[10:06] Priya: Okay, confirm my order: 3-seater sofa in olive velvet, ₹38,000. I'll pay 40% advance\n[10:07] Tanushree: Done`;
 
 export default function NewOrder() {
   const { t, toast } = useApp();

@@ -12,7 +12,7 @@ const CHATS = [
     name: 'Priya Mehra',
     status: 'new order',
     messages: [
-      { from: 'them', t: '10:41 am', text: 'Hi Ananya, saw your olive velvet sofa on Instagram. Do you make it in a 3-seater?' },
+      { from: 'them', t: '10:41 am', text: 'Hi Tanushree, saw your olive velvet sofa on Instagram. Do you make it in a 3-seater?' },
       { from: 'me', t: '10:43 am', text: 'Hi Priya! Yes, 3-seater in olive velvet, 7 ft. Takes about 3 weeks.' },
       { from: 'them', t: '10:44 am', text: 'What would it cost?' },
       { from: 'me', t: '10:46 am', text: '₹38,000 including delivery to Jaipur. I start work on an advance.' },
@@ -24,7 +24,7 @@ const CHATS = [
     name: 'Priya Mehra',
     status: 'change request',
     messages: [
-      { from: 'them', t: '4:12 pm', text: 'Hi Ananya, the frame photos look lovely!' },
+      { from: 'them', t: '4:12 pm', text: 'Hi Tanushree, the frame photos look lovely!' },
       { from: 'me', t: '4:15 pm', text: 'Thank you Priya! It is coming along well.' },
       { from: 'them', t: '4:18 pm', text: 'Can we add 2 matching cushions in the same velvet? How much extra?' },
       { from: 'me', t: '4:21 pm', text: 'Sure, 2 cushions are ₹4,000 extra.' },
@@ -69,7 +69,7 @@ export default function ChatSim() {
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    endRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
   }, [shown, typing, open, chat?.messages?.length]);
 
   function openChat(id) {
@@ -101,7 +101,7 @@ export default function ChatSim() {
     const stamp = `${pad(day.getDate())}/${pad(day.getMonth() + 1)}/${String(day.getFullYear()).slice(2)}`;
     return [...idx].sort((a, b) => a - b).map((i) => {
       const m = chat.messages[i];
-      return `[${stamp}, ${m.t}] ${m.from === 'me' ? 'Ananya' : chat.name}: ${m.text}`;
+      return `[${stamp}, ${m.t}] ${m.from === 'me' ? 'Tanushree' : chat.name}: ${m.text}`;
     }).join('\n');
   }
 
@@ -203,7 +203,7 @@ export default function ChatSim() {
           </div>
         ))}
         {typing && <div style={{ alignSelf: 'flex-start', background: '#fff', borderRadius: 12, padding: '8px 14px', color: '#667781' }}>•••</div>}
-        <div ref={endRef} />
+        <div ref={endRef} style={{ height: 1, scrollMarginBottom: 110 }} />
       </div>
       <div style={{ background: '#f0f2f5', padding: '10px 14px calc(10px + env(safe-area-inset-bottom, 0px))', fontSize: 12.5, color: '#51606b', position: 'sticky', bottom: 0 }}>
         {!chat.live && (
