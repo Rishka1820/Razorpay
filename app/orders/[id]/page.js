@@ -77,7 +77,7 @@ export default function OrderPage({ params }) {
           <div className="bold">{o.stage === 'awaiting_acceptance' ? t('Order created. Send it to {name}', { name: o.customer.name.split(' ')[0] }) : t('Order created with the advance noted')}</div>
           <div className="small muted">
             {o.stage === 'awaiting_acceptance'
-              ? t('{name} opens the link, checks the terms, taps Accept, then pays the advance.', { name: o.customer.name.split(' ')[0] })
+              ? t('{name} opens the link, reads the terms, taps Accept and pays the advance.', { name: o.customer.name.split(' ')[0] })
               : t('Send {name} a digital copy so both of you hold the same record.', { name: o.customer.name.split(' ')[0] })}
           </div>
           <button className="btn" onClick={() => share('order')}><Icon n="share" />{t('Send on WhatsApp')}</button>
@@ -101,7 +101,7 @@ export default function OrderPage({ params }) {
           <span className="muted">{t('Still to come')}: <b className="num">{inr(d.remaining)}</b></span>
           {o.deliveryDate && <span className="muted">{t('Deliver by')} {fmtDate(o.deliveryDate)}</span>}
         </div>
-        {d.refundDue > 0 && <div className="note bad">{t('Refund {amt} to the customer: they have paid more than the new total.', { amt: inr(d.refundDue) })}</div>}
+        {d.refundDue > 0 && <div className="note bad">{t('Refund {amt} to the customer. They\'ve paid more than the new total.', { amt: inr(d.refundDue) })}</div>}
         {d.pendingVersion && (
           <div className="note warn">{t('Waiting for the customer to accept the change to {amt} (v{n}).', { amt: inr(d.pendingVersion.total), n: d.pendingVersion.n })}
             <div className="btnrow" style={{ marginTop: 8 }}>
@@ -114,7 +114,7 @@ export default function OrderPage({ params }) {
       {d.pendingClaim && (
         <div className="card col" style={{ borderColor: '#f1cf8c', background: '#fffaf0' }}>
           <div className="bold">{t('{name} says they paid {amt} by UPI', { name: o.customer.name.split(' ')[0], amt: inr(d.pendingClaim.amount) })}</div>
-          <div className="small muted">{d.pendingClaim.ref ? t('Reference they gave: {r}', { r: d.pendingClaim.ref }) : t('No reference given.')} {t('Check your bank or UPI app. It counts as paid only after you confirm.')}</div>
+          <div className="small muted">{d.pendingClaim.ref ? t('Reference they shared: {r}', { r: d.pendingClaim.ref }) : t('They didn\'t share a reference.')} {t('Check your bank or UPI app. It counts as paid only when you tap Received.')}</div>
           <div className="btnrow">
             <button className="btn ghost" disabled={busy} onClick={() => act('reject_claim', { claimId: d.pendingClaim.id }, 'Marked as not received')}>{t('Not received')}</button>
             <button className="btn" disabled={busy} onClick={() => act('confirm_claim', { claimId: d.pendingClaim.id }, 'Payment confirmed')}>{t('Received')}</button>
@@ -129,7 +129,7 @@ export default function OrderPage({ params }) {
             <a className="btn ghost" href={o.customer.phone ? `tel:+${o.customer.phone}` : undefined} aria-disabled={!o.customer.phone} onClick={() => o.customer.phone && act('called')} style={o.customer.phone ? undefined : { opacity: 0.45, pointerEvents: 'none' }}><Icon n="phone" />{t('Call')}</a>
             <button className="btn" disabled={busy} onClick={remind}><Icon n="chat" />{t('Remind on WhatsApp')}</button>
           </div>
-          <div className="tiny muted">{t('The reminder carries a payment link for the exact amount due.')}</div>
+          <div className="tiny muted">{t('The reminder includes a payment link for the exact amount due.')}</div>
         </div>
       )}
 
@@ -139,8 +139,8 @@ export default function OrderPage({ params }) {
           <div className="small" style={{ background: '#fff', borderRadius: 10, padding: 10 }}>“{d.pendingChangeRequest.note}”</div>
           <div className="small muted">{t('Set the new price. The customer must accept it before anything changes.')}</div>
           <div className="btnrow">
-            <button className="btn ghost" disabled={busy || role !== 'owner'} onClick={() => act('decline_change_request', { requestId: d.pendingChangeRequest.id }, 'Request declined')}>{t('Cannot do this')}</button>
-            <button className="btn" disabled={busy} onClick={() => (role === 'owner' ? setSheet('change') : toast(t('Only the owner can change the price')))}>{t('Set the price')}</button>
+            <button className="btn ghost" disabled={busy || role !== 'owner'} onClick={() => act('decline_change_request', { requestId: d.pendingChangeRequest.id }, 'Request declined')}>{t('Can\'t do this')}</button>
+            <button className="btn" disabled={busy} onClick={() => (role === 'owner' ? setSheet('change') : toast(t('Only the owner can change prices')))}>{t('Set the price')}</button>
           </div>
         </div>
       )}
@@ -156,7 +156,7 @@ export default function OrderPage({ params }) {
           {role === 'owner' ? (
             <button className="btn ghost" onClick={() => setSheet('change')}>{t('Propose a change')}</button>
           ) : (
-            <button className="btn ghost" onClick={() => toast(t('Only the owner can change the price'))} style={{ opacity: 0.6 }}>{t('Propose a change')}</button>
+            <button className="btn ghost" onClick={() => toast(t('Only the owner can change prices'))} style={{ opacity: 0.6 }}>{t('Propose a change')}</button>
           )}
         </div>
       )}
@@ -207,7 +207,7 @@ export default function OrderPage({ params }) {
       return (
         <div className="card col">
           <div className="bold">{t('Waiting for {name} to accept', { name: first })}</div>
-          <div className="small muted">{t('Once they accept, a request for the advance goes out automatically.')}</div>
+          <div className="small muted">{t('As soon as they accept, they\'ll get a request to pay the advance.')}</div>
           <button className="btn" onClick={() => share('order')}><Icon n="share" />{t('Send on WhatsApp')}</button>
           <button className="btn ghost" onClick={() => copyLink(customerUrl)}><Icon n="copy" />{t('Copy order link')}</button>
         </div>
@@ -240,7 +240,7 @@ export default function OrderPage({ params }) {
           {o.photo && <div className="photo"><img src={o.photo} alt="Finished piece" /></div>}
           <div className="tiny muted">{t('How will the balance be paid?')}</div>
           <div className="seg">
-            {[['prepaid', 'Before dispatch'], ['cod', 'On delivery'], ['pickup', 'Studio pickup']].map(([k, l]) => (
+            {[['prepaid', 'Before dispatch'], ['cod', 'On delivery'], ['pickup', 'Pickup']].map(([k, l]) => (
               <button key={k} className={o.fulfilment === k ? 'on' : ''} onClick={() => act('set_fulfilment', { mode: k })}>{t(l)}</button>
             ))}
           </div>
@@ -248,10 +248,10 @@ export default function OrderPage({ params }) {
             <>
               <div className="row between"><div><div className="tiny muted">{t('Due now')} · {t(d.step.name)}</div><div className="big">{inr(d.dueNow)}</div></div>
                 {o.activeRequest && <Pill tone="info">{t('Request open')}</Pill>}</div>
-              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{t('Send “pay {amt} to dispatch”', { amt: inr(d.dueNow) })}</button>
+              <button className="btn" onClick={() => setSheet('collect')}><Icon n="rupee" />{t('Ask for {amt} before dispatch', { amt: inr(d.dueNow) })}</button>
             </>
           )}
-          <button className="btn ghost" onClick={() => setSheet('dispatch')}><Icon n="truck" />{o.fulfilment === 'pickup' ? t('Hand over at studio') : t('Dispatch')}</button>
+          <button className="btn ghost" onClick={() => setSheet('dispatch')}><Icon n="truck" />{o.fulfilment === 'pickup' ? t('Hand over in person') : t('Dispatch')}</button>
         </div>
       );
     }
@@ -268,8 +268,8 @@ export default function OrderPage({ params }) {
           )}
           {o.cod?.state === 'with_courier' && (
             <>
-              <div className="note warn">{t('The courier has {amt} in cash. It is not yours until it reaches you.', { amt: inr(o.cod.amount) })}</div>
-              <button className="btn" onClick={() => setSheet('remit')}>{t('Courier payment reached me')}</button>
+              <div className="note warn">{t('The courier is holding {amt} in cash. It\'s yours once it reaches you.', { amt: inr(o.cod.amount) })}</div>
+              <button className="btn" onClick={() => setSheet('remit')}>{t('I received the courier\'s payment')}</button>
             </>
           )}
           <button className="btn ghost" disabled={busy} onClick={() => act('deliver', {}, 'Marked delivered')}>{t('Mark delivered')}</button>

@@ -200,3 +200,11 @@ h1, h2, h3, p { margin: 0; }
 .rows .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
 .eyebrow { font-size: 12px; line-height: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); }
 .ph { font-size: 24px; line-height: 30px; font-weight: 600; padding: 2px 2px 0; }
+
+.badge { position: absolute; top: 0; right: 0; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--bad); color: #fff; font-size: 10.5px; font-weight: 700; display: grid; place-items: center; }
+.nrow { display: flex; gap: 12px; align-items: flex-start; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; width: 100%; text-align: left; }
+.nrow.act { border-color: #f1cf8c; background: #fffaf0; }
+.nrow .nd { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--info-bg); color: var(--blue); }
+.nrow .nd.paid, .nrow .nd.ok { background: var(--ok-bg); color: var(--ok); }
+.nrow .nd.verify, .nrow .nd.change, .nrow .nd.warn { background: var(--warn-bg); color: var(--warn); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

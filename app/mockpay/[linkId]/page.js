@@ -1,4 +1,5 @@
 'use client';
+import { BUSINESS } from '@/lib/config';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Spinner } from '@/components/kit';
@@ -31,7 +32,7 @@ export default function MockPay({ params }) {
       <main className="main" style={{ gap: 14 }}>
         <div className="row">
           <div className="avatar" style={{ background: '#e8f0ff' }}>A</div>
-          <div className="grow"><div className="bold">Ananya Interiors</div><div className="small muted trunc">{data ? data.item : ' '}</div></div>
+          <div className="grow"><div className="bold">{BUSINESS.name}</div><div className="small muted trunc">{data ? data.item : ' '}</div></div>
         </div>
         {err && <div className="note bad">{err}</div>}
         {data && !data.active && <div className="note bad">{data.paid ? 'This link has already been paid.' : 'This payment link is no longer active. The seller replaced or cancelled it. Ask for a new one.'}</div>}

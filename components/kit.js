@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { tr } from '@/lib/i18n';
+import { buildNotifications } from '@/lib/notify';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -38,8 +39,64 @@ export function Providers({ children }) {
   }, []);
   const t = useCallback((k, v) => tr(lang, k, v), [lang]);
 
+  // Notifications for the seller: polls the orders and raises a toast when something new comes in.
+  const pathname = usePathname();
+  const [notifs, setNotifs] = useState({ items: [], unread: 0, action: 0 });
+  const known = useRef(null);
+  const langRef = useRef(lang);
+  langRef.current = lang;
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
+  const seenKey = 'notifSeen';
+  const getSeen = () => {
+    try {
+      let v = localStorage.getItem(seenKey);
+      if (!v) {
+        v = new Date().toISOString();
+        localStorage.setItem(seenKey, v);
+      }
+      return v;
+    } catch {
+      return new Date(0).toISOString();
+    }
+  };
+  const markSeen = useCallback(() => {
+    try {
+      localStorage.setItem(seenKey, new Date().toISOString());
+    } catch {}
+    setNotifs((n) => ({ ...n, unread: 0 }));
+  }, []);
+  useEffect(() => {
+    if (!pathname || /^\/(c|mockpay|chat)(\/|$)/.test(pathname)) return undefined;
+    let alive = true;
+    async function tick() {
+      try {
+        const r = await fetch('/api/orders', { cache: 'no-store' });
+        const j = await r.json();
+        if (!alive || !j.orders) return;
+        const items = buildNotifications(j.orders);
+        const seen = getSeen();
+        if (known.current) {
+          const fresh = items.filter((i) => !known.current.has(i.id));
+          if (fresh.length && !pathname.startsWith('/notifications')) {
+            const x = fresh[0];
+            toastRef.current(tr(langRef.current, x.text, x.params));
+          }
+        }
+        known.current = new Set(items.map((i) => i.id));
+        setNotifs({ items, unread: items.filter((i) => i.at > seen).length, action: items.filter((i) => i.action).length });
+      } catch {}
+    }
+    tick();
+    const iv = setInterval(tick, 4000);
+    return () => {
+      alive = false;
+      clearInterval(iv);
+    };
+  }, [pathname]);
+
   return (
-    <Ctx.Provider value={{ lang, setLang, role, setRole, toast, t }}>
+    <Ctx.Provider value={{ lang, setLang, role, setRole, toast, t, notifs, markSeen }}>
       {children}
       {toastMsg && <div className="toast" role="status">{toastMsg}</div>}
     </Ctx.Provider>
@@ -93,10 +150,21 @@ export function LangSwitch() {
   );
 }
 
+export function Bell() {
+  const { notifs, t } = useApp();
+  const n = notifs.unread;
+  return (
+    <Link href="/notifications" className="iconbtn" aria-label={t('Notifications')} style={{ position: 'relative' }}>
+      <Icon n="bell" />
+      {n > 0 && <span className="badge">{n > 9 ? '9+' : n}</span>}
+    </Link>
+  );
+}
+
 export function Shell({ title, sub, back, right, active, nav = true, children }) {
   const { t, toast } = useApp();
   const router = useRouter();
-  const stub = (name) => toast(t('{name} is part of the Razorpay app and is not in this prototype', { name: t(name) }));
+  const stub = (name) => toast(t('{name} is part of the Razorpay app, but not this prototype', { name: t(name) }));
   return (
     <div className="phone">
       <header className="top">

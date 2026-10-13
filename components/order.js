@@ -4,7 +4,7 @@ import { Pill, useApp } from './kit';
 import { inr, fmtDate, fmtDateTime } from '@/lib/format';
 import { bucket, PLANS } from '@/lib/model';
 
-export const STEP_LABEL = { advance: 'Advance', frame_ready: 'Frame ready', before_dispatch: 'Before dispatch' };
+export const STEP_LABEL = { advance: 'Advance', frame_ready: 'Midway', before_dispatch: 'Before dispatch' };
 
 export function statusChip(o, t) {
   const b = bucket(o, o.today);
@@ -115,15 +115,15 @@ export function eventLine(e, t, o) {
     case 'claim_made': return t('Customer says they paid {amt} directly by UPI', { amt: A(d.amount) });
     case 'claim_confirmed': return t('You confirmed {amt} received by UPI', { amt: A(d.amount) });
     case 'claim_rejected': return t('You marked {amt} as not received', { amt: A(d.amount) });
-    case 'overpaid': return t('More than the order total was paid: {amt} to refund', { amt: A(d.amount) });
+    case 'overpaid': return t('The customer paid {amt} more than the total. It needs to be refunded.', { amt: A(d.amount) });
     case 'manual_payment': return t('{amt} recorded by you ({m})', { amt: A(d.amount), m: methodLabel(d.method, t) });
     case 'version_proposed': return t('Change proposed: {from} to {to}', { from: A(d.from), to: A(d.to) });
     case 'version_accepted': return t('Customer accepted the change: {from} to {to}', { from: A(d.from), to: A(d.to) });
     case 'version_declined': return t('Customer declined the change');
     case 'balance_recalculated': return t('Amount due recalculated: {was} to {now}', { was: A(d.was), now: A(d.now) });
     case 'milestone_unlocked': return t('{name} stage reached: {amt} now due', { name: t(d.name), amt: A(d.amount) });
-    case 'ready': return t('Marked ready, finished photo {p}', { p: t(d.hasPhoto ? 'added' : 'not added') });
-    case 'fulfilment_set': return t('Delivery set to: {m}', { m: t(d.mode === 'cod' ? 'Pay on delivery' : d.mode === 'pickup' ? 'Studio pickup' : 'Pay before dispatch') });
+    case 'ready': return t('Marked ready, photo {p}', { p: t(d.hasPhoto ? 'added' : 'not added') });
+    case 'fulfilment_set': return t('Delivery set to: {m}', { m: t(d.mode === 'cod' ? 'Pay on delivery' : d.mode === 'pickup' ? 'Pickup' : 'Pay before dispatch') });
     case 'dispatched': return d.cod ? t('Dispatched with {c}. {amt} to be paid on delivery', { c: d.courier, amt: A(d.cod) }) : t('Dispatched with {c}', { c: d.courier });
     case 'courier_collected': return t('Courier collected {amt} in cash', { amt: A(d.amount) });
     case 'remittance_received': return t('Courier payment of {amt} reached you', { amt: A(d.amount) });

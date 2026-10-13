@@ -15,7 +15,7 @@ export default function More() {
     setBusy(true);
     try {
       await api('/api/reset', { method: 'POST' });
-      toast(t('Demo data reset'));
+      toast(t('Sample data reset'));
     } catch (e) {
       toast(e.message);
     } finally {
@@ -26,12 +26,12 @@ export default function More() {
   return (
     <Shell active="more" title={t('Account')}>
       <div className="card col">
-        <div className="sec" style={{ padding: 0 }}><span>{t('Who is using the app')}</span></div>
+        <div className="sec" style={{ padding: 0 }}><span>{t('Who\'s using the app')}</span></div>
         <div className="seg">
-          <button className={role === 'owner' ? 'on' : ''} onClick={() => setRole('owner')}>{t('Owner (Ananya)')}</button>
-          <button className={role === 'staff' ? 'on' : ''} onClick={() => setRole('staff')}>{t('Staff (Rohit)')}</button>
+          <button className={role === 'owner' ? 'on' : ''} onClick={() => setRole('owner')}>{t('Owner')}</button>
+          <button className={role === 'staff' ? 'on' : ''} onClick={() => setRole('staff')}>{t('Staff')}</button>
         </div>
-        <div className="small muted">{t('Staff can see today’s list, collect payments and dispatch. Only the owner can change prices, cancel orders and refund. The server enforces this.')}</div>
+        <div className="small muted">{t('Staff can see today\'s list, collect payments and dispatch. Only the owner can change prices, cancel orders and refund.')}</div>
       </div>
 
       <div className="card col">
@@ -40,7 +40,7 @@ export default function More() {
           <button className={demo ? 'on' : ''} onClick={() => { setDemo(true); setDemoChat(true); }}>{t('Show in chat simulator')}</button>
           <button className={!demo ? 'on' : ''} onClick={() => { setDemo(false); setDemoChat(false); }}>{t('Open WhatsApp')}</button>
         </div>
-        <div className="small muted">{t('Use the simulator for the demo video. Open WhatsApp sends the message from your own phone.')}</div>
+        <div className="small muted">{t('Use the simulator to demo. “Open WhatsApp” sends the message from your own phone.')}</div>
       </div>
 
       <div className="card col">
@@ -52,14 +52,14 @@ export default function More() {
       <Link href="/chat" className="card row between"><span className="bold">{t('Chat simulator (for the demo)')}</span><span className="muted">›</span></Link>
 
       <div className="card col">
-        <div className="sec" style={{ padding: 0 }}><span>{t('What is real in this prototype')}</span></div>
+        <div className="sec" style={{ padding: 0 }}><span>{t('What\'s live in this prototype')}</span></div>
         <div className="row between small"><span>{t('Payments')}</span><Pill tone={status?.razorpay === 'simulated' ? 'warn' : 'ok'}>{status ? (status.razorpay === 'simulated' ? t('Simulated checkout') : t('Razorpay test mode')) : '…'}</Pill></div>
         <div className="row between small"><span>{t('Reading chats and bills')}</span><Pill tone={status?.ai === 'Claude' ? 'ok' : 'warn'}>{status ? (status.ai === 'Claude' ? 'Claude' : t('Simple rules')) : '…'}</Pill></div>
         <div className="row between small"><span>{t('Storage')}</span><Pill tone={status?.storage === 'postgres' ? 'ok' : 'warn'}>{status ? (status.storage === 'postgres' ? 'Postgres' : t('Memory (demo only)')) : '…'}</Pill></div>
-        <div className="tiny muted">{t('QR codes, automatic WhatsApp sending and courier tracking are described in the product note and not built.')}</div>
+        <div className="tiny muted">{t('QR codes, automatic WhatsApp sending and courier tracking aren\'t part of this prototype.')}</div>
       </div>
 
-      <button className="btn danger" disabled={busy || role !== 'owner'} onClick={reset}>{busy ? <Spinner /> : null}{t('Reset demo data')}</button>
+      <button className="btn danger" disabled={busy || role !== 'owner'} onClick={reset}>{busy ? <Spinner /> : null}{t('Reset sample data')}</button>
     </Shell>
   );
 }

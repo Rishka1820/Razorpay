@@ -120,7 +120,7 @@ export default function NewOrder() {
 
           {mode === 'chat' && (
             <div className="card col">
-              <Field label={t('Copy the customer’s message from WhatsApp or Instagram and paste it here')}>
+              <Field label={t('Paste a chat from WhatsApp or Instagram, or share it straight to this app')}>
                 <textarea id="chat" value={text} onChange={(e) => setText(e.target.value)} placeholder={t('Paste here…')} />
               </Field>
               <button className="btn" disabled={busy || !text.trim()} onClick={() => read()}>{busy ? <Spinner /> : <Icon n="chat" />}{t('Read order from chat')}</button>
@@ -129,7 +129,7 @@ export default function NewOrder() {
 
           {mode === 'bill' && (
             <div className="card col">
-              <div className="small muted">{t('Customer came to the studio and you gave a written bill? Photograph it and the order is created with the advance already noted.')}</div>
+              <div className="small muted">{t('Gave the customer a paper bill? Take a photo and we\'ll create the order, with the advance already noted.')}</div>
               {img ? <div className="photo"><img src={img} alt="Bill" /></div> : <div className="photo">{t('No photo yet')}</div>}
               <label className="btn ghost" htmlFor="billfile" style={{ cursor: 'pointer' }}>
                 <Icon n="camera" />{img ? t('Retake') : t('Photograph the bill')}
@@ -150,7 +150,7 @@ export default function NewOrder() {
             </Field>
             <Field label={t('WhatsApp number')} ai={form.ai.phone}>
               <input id="phone" inputMode="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="98xxxxxxxx" />
-              {!form.phone && <span className="tiny" style={{ color: 'var(--warn)' }}>{t('Needed to share the order and payment links')}</span>}
+              {!form.phone && <span className="tiny" style={{ color: 'var(--warn)' }}>{t('Needed to send the order and payment links')}</span>}
             </Field>
             <Field label={t('What is being made')} ai={form.ai.item}>
               <input id="item" value={form.item} onChange={(e) => set('item', e.target.value)} />
@@ -181,7 +181,7 @@ export default function NewOrder() {
 
           <div className="card col">
             <div className="row between"><div className="bold">{t('Advance already received?')}</div>{form.ai.advance && <span className="ai">AI</span>}</div>
-            <div className="small muted">{t('Only fill this if the customer has already paid you. Otherwise they accept the order and pay the advance by link.')}</div>
+            <div className="small muted">{t('Fill this in only if the customer has already paid you. Otherwise they\'ll accept the order and pay the advance by link.')}</div>
             <div className="grid2">
               <Field label={t('Amount (₹)')}>
                 <input id="adv" inputMode="numeric" value={form.advance} onChange={(e) => set('advance', e.target.value.replace(/\D/g, ''))} placeholder="0" />
@@ -194,7 +194,7 @@ export default function NewOrder() {
                 </select>
               </Field>
             </div>
-            {Number(form.advance) > 0 && <div className="note warn">{t('This will be marked “Recorded by you”, because the money did not come through Razorpay.')}</div>}
+            {Number(form.advance) > 0 && <div className="note warn">{t('This will show as “Recorded by you”, because the money didn\'t come through Razorpay.')}</div>}
           </div>
 
           <button className="btn" disabled={busy} onClick={create}>{busy ? <Spinner /> : <Icon n="check" />}{t('Create order')}</button>

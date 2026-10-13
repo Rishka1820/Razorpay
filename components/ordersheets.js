@@ -39,11 +39,11 @@ export function CollectSheet({ c }) {
           </button>
         )
       )}
-      <button className="btn ghost" onClick={() => toast(t('QR for the exact amount works in live mode. Not shown in this prototype.'))}><Icon n="qr" />{t('Show QR for this amount')}</button>
+      <button className="btn ghost" onClick={() => toast(t('A QR code for the exact amount works in live mode. It isn\'t shown in this prototype.'))}><Icon n="qr" />{t('Show QR for this amount')}</button>
       <hr className="divider" />
-      <div className="small muted">{t('Customer paid you another way?')}</div>
+      <div className="small muted">{t('Did the customer pay you another way?')}</div>
       <button className="btn ghost" onClick={() => setSheet('manual')}>{t('Mark paid outside Razorpay')}</button>
-      <div className="tiny muted">{t('Only one payment request is open per order. A new one cancels the old one.')}</div>
+      <div className="tiny muted">{t('An order has one open payment request at a time. A new one replaces the old one.')}</div>
     </Sheet>
   );
 }
@@ -55,7 +55,7 @@ export function ManualSheet({ c }) {
   const [ref, setRef] = useState('');
   return (
     <Sheet title={t('Mark paid outside Razorpay')} onClose={() => setSheet('collect')}>
-      <div className="note warn">{t('This is saved as “Recorded by you”. It is not confirmed by Razorpay, and any open payment link is cancelled.')}</div>
+      <div className="note warn">{t('This will show as “Recorded by you”, since Razorpay didn\'t confirm it. Any open payment link will be cancelled.')}</div>
       <Field label={t('Amount received (₹)')}><input id="mamt" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} /></Field>
       <Field label={t('How was it paid')}>
         <select id="mmeth" value={method} onChange={(e) => setMethod(e.target.value)}>
@@ -78,18 +78,18 @@ export function ChangeSheet({ c }) {
   const after = n ? Math.max(0, cumTargets(n, o.plan, { ...(o.frozen || {}), ...frozenAfter(o) })[d.idx] - d.paid) : 0;
   return (
     <Sheet title={t('Propose a change')} onClose={() => setSheet(null)}>
-      {req && <div className="note warn">{t('The customer asked: “{note}”. Set the new total they should approve.', { note: req.note })}</div>}
-      <div className="small muted">{t('The customer must accept the change. Until then the old total stays in force.')}</div>
-      <Field label={t('What changed')}><input id="cnote" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('e.g. 2 matching cushions added')} /></Field>
+      {req && <div className="note warn">{t('The customer asked: “{note}”. Set a new total for them to approve.', { note: req.note })}</div>}
+      <div className="small muted">{t('The customer has to approve the change. Until then, the old total stays.')}</div>
+      <Field label={t('What changed')}><input id="cnote" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('e.g. 2 more items added')} /></Field>
       <Field label={t('New total (₹)')}><input id="ctotal" inputMode="numeric" value={total} onChange={(e) => setTotal(e.target.value.replace(/\D/g, ''))} /></Field>
       {n > 0 && n !== o.total && (
         <div className="note">
-          {t('Payments received ({paid}) stay. After the customer accepts, the amount due now becomes {after}.', { paid: inr(d.paid), after: inr(after) })}
-          {d.paid > n && ` ${t('You would owe a refund of {amt}.', { amt: inr(d.paid - n) })}`}
+          {t('The {paid} already received stays. Once the customer accepts, the amount due now will be {after}.', { paid: inr(d.paid), after: inr(after) })}
+          {d.paid > n && ` ${t('You\'d need to refund {amt}.', { amt: inr(d.paid - n) })}`}
         </div>
       )}
       <button className="btn" disabled={busy || !n || n === o.total} onClick={async () => { const x = await act('propose_version', { total: n, note, requestId: req ? req.id : undefined }, 'Change saved. Send it to the customer to accept'); if (x) setSheet(null); }}>
-        {t('Send for acceptance')}
+        {t('Send to customer for approval')}
       </button>
     </Sheet>
   );
@@ -102,14 +102,14 @@ export function ReadySheet({ c }) {
   const opts = [
     ['prepaid', 'Pay before dispatch', 'Customer pays the balance by link, then you ship'],
     ['cod', 'Pay on delivery', 'Customer pays online or in cash when it arrives'],
-    ['pickup', 'Studio pickup', 'Customer collects and pays at the studio'],
+    ['pickup', 'Pickup', 'Customer collects it and pays in person'],
   ];
   return (
     <Sheet title={t('Mark ready')} onClose={() => setSheet(null)}>
-      {photo ? <div className="photo"><img src={photo} alt="Finished piece" /></div> : <div className="photo">{t('Photo of the finished piece')}</div>}
+      {photo ? <div className="photo"><img src={photo} alt="Finished piece" /></div> : <div className="photo">{t('Photo of the finished item')}</div>}
       <label className="btn ghost" htmlFor="rphoto" style={{ cursor: 'pointer' }}><Icon n="camera" />{photo ? t('Retake') : t('Add photo')}</label>
       <input id="rphoto" type="file" accept="image/*" capture="environment" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) setPhoto(await fileToDataUrl(f, 900, 0.7)); }} />
-      <div className="tiny muted">{t('Seeing the finished piece is what usually gets the balance paid.')}</div>
+      <div className="tiny muted">{t('A photo of the finished item shows the customer it is ready.')}</div>
       {opts.map(([k, a, b]) => (
         <button key={k} className={`choice ${mode === k ? 'on' : ''}`} onClick={() => setMode(k)}>
           <span className="radio" /><span><span className="bold">{t(a)}</span><br /><span className="small muted">{t(b)}</span></span>
@@ -127,7 +127,7 @@ export function DispatchSheet({ c }) {
   const pickup = o.fulfilment === 'pickup';
   const blocked = d.remaining > 0 && o.fulfilment !== 'cod';
   return (
-    <Sheet title={pickup ? t('Hand over at studio') : t('Dispatch')} onClose={() => setSheet(null)}>
+    <Sheet title={pickup ? t('Hand over in person') : t('Dispatch')} onClose={() => setSheet(null)}>
       {blocked && (
         <div className="note warn">
           {t('{amt} is still unpaid. Collect it first, or switch to pay on delivery.', { amt: inr(d.remaining) })}
@@ -153,8 +153,8 @@ export function RemitSheet({ c }) {
   const { o, d, t, toast, busy, act, setSheet, share, copyLink } = c;
   const [ref, setRef] = useState('');
   return (
-    <Sheet title={t('Courier payment reached me')} onClose={() => setSheet(null)}>
-      <div className="small muted">{t('Record the money only when it is in your account.')}</div>
+    <Sheet title={t('I received the courier\'s payment')} onClose={() => setSheet(null)}>
+      <div className="small muted">{t('Record this only once the money is in your account.')}</div>
       <Field label={t('Reference (optional)')}><input id="rref" value={ref} onChange={(e) => setRef(e.target.value)} placeholder={t('Courier remittance ref')} /></Field>
       <button className="btn" disabled={busy} onClick={async () => { if (await act('remittance_received', { ref }, 'Payment recorded')) setSheet(null); }}>{t('Save {amt}', { amt: inr(o.cod.amount) })}</button>
     </Sheet>

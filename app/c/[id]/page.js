@@ -5,11 +5,13 @@ import { Field, Icon, LangSwitch, Pill, Sheet, Spinner, useApp } from '@/compone
 import { Steps, VersionList, methodLabel } from '@/components/order';
 import { api, usePoll } from '@/lib/client';
 import { fmtDate, fmtDateTime, inr } from '@/lib/format';
+import { BUSINESS } from '@/lib/config';
 
 // What the customer sees. No login: the link is the key.
 export default function CustomerPage({ params }) {
   const { id } = params;
   const { t, toast } = useApp();
+  const seller = BUSINESS.name;
   const { data, err, setData } = usePoll(`/api/c/${id}`, 3000);
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState(null);
@@ -33,7 +35,7 @@ export default function CustomerPage({ params }) {
 
   const bar = (
     <div className="demo-bar">
-      <span>{t('Prototype: you are seeing what the customer sees')}</span>
+      <span>{t('You\'re seeing what your customer sees')}</span>
       <Link href={`/orders/${id}`}>{t('Back to seller app')}</Link>
     </div>
   );
@@ -51,7 +53,7 @@ export default function CustomerPage({ params }) {
       {bar}
       <header className="top" style={{ position: 'static' }}>
         <div className="grow">
-          <h1>Ananya Interiors</h1>
+          <h1>{seller}</h1>
           <div className="sub">{t('Order for {name}', { name: o.customer.name })}</div>
         </div>
         <LangSwitch />
@@ -87,7 +89,7 @@ export default function CustomerPage({ params }) {
             <div className="bold">{t('Change to your order')}</div>
             <div className="row between"><span className="num muted">{inr(o.total)}</span><Icon n="back" s={16} /><span className="big" style={{ fontSize: 22 }}>{inr(pending.total)}</span></div>
             <div className="small">{pending.note}</div>
-            <div className="small muted">{t('What you have already paid ({paid}) stays counted.', { paid: inr(d.paid) })}</div>
+            <div className="small muted">{t('The {paid} you\'ve already paid still counts.', { paid: inr(d.paid) })}</div>
             <div className="btnrow">
               <button className="btn ghost" disabled={busy} onClick={() => act('decline_version', { n: pending.n })}>{t('Not now')}</button>
               <button className="btn" disabled={busy} onClick={() => act('accept_version', { n: pending.n })}>{t('Accept change')}</button>
@@ -100,10 +102,10 @@ export default function CustomerPage({ params }) {
           <button className="btn ghost" onClick={() => setChgOpen(true)}>{t('Ask for a change')}</button>
         )}
         {d.pendingChangeRequest && (
-          <div className="note warn">{t('You asked for a change: “{note}”. Ananya will send the new price for you to approve.', { note: d.pendingChangeRequest.note })}</div>
+          <div className="note warn">{t('You asked for a change: “{note}”. {seller} will send you a new price to approve.', { seller, note: d.pendingChangeRequest.note })}</div>
         )}
         {(o.changeRequests || []).length > 0 && !d.pendingChangeRequest && !pending && o.changeRequests[o.changeRequests.length - 1].status === 'declined' && (
-          <div className="note bad">{t('Ananya could not make that change.')}</div>
+          <div className="note bad">{t('{seller} couldn\'t make that change.')}</div>
         )}
 
         {/* 3. pay */}
@@ -114,18 +116,18 @@ export default function CustomerPage({ params }) {
             <a className="btn" href={r.url}><Icon n="rupee" />{t('Pay {amt}', { amt: inr(r.amount) })}</a>
             <div className="tiny muted">{t('Secure payment by Razorpay: UPI, cards, netbanking.')}</div>
             {!d.pendingClaim && (
-              <button className="btn ghost sm" onClick={() => setClaimOpen(true)}>{t('I paid {name} directly by UPI', { name: 'Ananya' })}</button>
+              <button className="btn ghost sm" onClick={() => setClaimOpen(true)}>{t('I paid {name} directly by UPI', { name: seller })}</button>
             )}
           </div>
         )}
         {d.pendingClaim && (
-          <div className="note warn">{t('You told Ananya you paid {amt}. It will show as paid once she confirms it.', { amt: inr(d.pendingClaim.amount) })}</div>
+          <div className="note warn">{t('You told {seller} you paid {amt}. It will show as paid once they confirm it.', { seller, amt: inr(d.pendingClaim.amount) })}</div>
         )}
         {(o.claims || []).some((c) => c.status === 'rejected') && !d.pendingClaim && r && (
-          <div className="note bad">{t('Ananya could not see your last UPI payment. Please check, or use the payment button above.')}</div>
+          <div className="note bad">{t('{seller} couldn\'t find your UPI payment. Please check it, or pay with the button above.', { seller })}</div>
         )}
         {!r && o.stage !== 'awaiting_acceptance' && o.stage !== 'cancelled' && d.remaining > 0 && !pending && (
-          <div className="note">{t('Nothing to pay right now. {name} will send the next payment request when it is due.', { name: 'Ananya' })}</div>
+          <div className="note">{t('Nothing to pay right now. {seller} will send the next request when a payment is due.', { seller })}</div>
         )}
         {d.remaining === 0 && o.payments.length > 0 && o.stage !== 'cancelled' && <div className="note ok">{t('Fully paid. Thank you, {name}!', { name: first })}</div>}
         {o.cod && o.cod.state !== 'remitted' && d.remaining > 0 && <div className="note warn">{t('{amt} to be paid when your order arrives.', { amt: inr(o.cod.amount) })}</div>}
@@ -157,18 +159,18 @@ export default function CustomerPage({ params }) {
 
       {chgOpen && (
         <Sheet title={t('Ask for a change')} onClose={() => setChgOpen(false)}>
-          <div className="small muted">{t('Tell Ananya what you would like. She will send a new price. Nothing changes until you accept it.')}</div>
-          <Field label={t('What would you like to change?')}><textarea value={chgNote} onChange={(e) => setChgNote(e.target.value)} placeholder={t('e.g. 2 matching cushions in the same velvet')} /></Field>
-          <button className="btn" disabled={busy || !chgNote.trim()} onClick={async () => { await act('request_change', { note: chgNote }); setChgOpen(false); setChgNote(''); }}>{t('Send to Ananya')}</button>
+          <div className="small muted">{t('Tell {seller} what you\'d like. They\'ll send you a new price. Nothing changes until you accept it.', { seller })}</div>
+          <Field label={t('What would you like to change?')}><textarea value={chgNote} onChange={(e) => setChgNote(e.target.value)} placeholder={t('e.g. 2 more of the same item')} /></Field>
+          <button className="btn" disabled={busy || !chgNote.trim()} onClick={async () => { await act('request_change', { note: chgNote }); setChgOpen(false); setChgNote(''); }}>{t('Send to {seller}', { seller })}</button>
         </Sheet>
       )}
 
       {claimOpen && (
         <Sheet title={t('Paid directly by UPI')} onClose={() => setClaimOpen(false)}>
-          <div className="small muted">{t('Pay to ananya.interiors@okaxis, then tell Ananya here. She will check her account and confirm.')}</div>
+          <div className="small muted">{t('Pay {upi}, then tell {seller} here. They\'ll check their account and confirm.', { upi: BUSINESS.upi, seller })}</div>
           <div className="card row between"><span className="muted small">{t('Amount')}</span><b className="num">{inr(d.dueNow)}</b></div>
           <Field label={t('UPI reference (optional)')}><input value={ref} onChange={(e) => setRef(e.target.value)} placeholder="4123 5567 8890" /></Field>
-          <button className="btn" disabled={busy} onClick={async () => { await act('claim_paid', { amount: d.dueNow, ref }); setClaimOpen(false); setRef(''); }}>{t('Tell Ananya I have paid')}</button>
+          <button className="btn" disabled={busy} onClick={async () => { await act('claim_paid', { amount: d.dueNow, ref }); setClaimOpen(false); setRef(''); }}>{t('Tell {seller} I\'ve paid', { seller })}</button>
         </Sheet>
       )}
 
@@ -178,14 +180,14 @@ export default function CustomerPage({ params }) {
             <div className="big">{inr(receipt.amount)}</div>
             <div className="small">{o.item}</div>
             <hr className="divider" />
-            <div className="row between small"><span className="muted">{t('Paid to')}</span><span>Ananya Interiors</span></div>
+            <div className="row between small"><span className="muted">{t('Paid to')}</span><span>{seller}</span></div>
             <div className="row between small"><span className="muted">{t('Paid by')}</span><span>{o.customer.name}</span></div>
             <div className="row between small"><span className="muted">{t('Method')}</span><span>{methodLabel(receipt.method, t)}</span></div>
             <div className="row between small"><span className="muted">{t('Date')}</span><span>{fmtDateTime(receipt.at)}</span></div>
             <div className="row between small"><span className="muted">{t('Reference')}</span><span className="num">{receipt.ref}</span></div>
             <div className="row between small"><span className="muted">{t('Order balance after this')}</span><span className="num">{inr(Math.max(0, o.total - o.payments.filter((x) => x.at <= receipt.at).reduce((a, x) => a + x.amount, 0)))}</span></div>
           </div>
-          {receipt.source !== 'razorpay' && <div className="note warn">{t('This payment was noted by the seller. It was not paid through Razorpay.')}</div>}
+          {receipt.source !== 'razorpay' && <div className="note warn">{t('The seller recorded this payment. It wasn\'t paid through Razorpay.')}</div>}
         </Sheet>
       )}
     </div>

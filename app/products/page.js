@@ -5,7 +5,7 @@ import { Icon, Shell, useApp } from '@/components/kit';
 export default function Products() {
   const { t, toast } = useApp();
   const router = useRouter();
-  const stub = (name) => toast(t('{name} is part of the Razorpay app and is not in this prototype', { name: t(name) }));
+  const stub = (name) => toast(t('{name} is part of the Razorpay app, but not this prototype', { name: t(name) }));
   const items = [
     { n: 'link', h: 'Payment links', d: 'Collect payments instantly by sharing a simple link' },
     { n: 'qr', h: 'QR Codes', d: 'Collect payments with a QR code' },
@@ -21,7 +21,7 @@ export default function Products() {
           <span className="tag">NEW</span>
           <span className="ic"><Icon n="list" s={20} /></span>
           <span className="h">{t('Orders')}</span>
-          <span className="d">{t('Made-to-order sellers: advance, stages and balance on one order, with changes your customer approves')}</span>
+          <span className="d">{t('Made to order? Keep the advance, stage payments and balance on one order, with changes your customer approves.')}</span>
         </button>
         {items.map((x) => (
           <button key={x.h} className="pcard" onClick={() => stub(x.h)}>

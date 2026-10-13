@@ -18,8 +18,8 @@ export default function Metrics() {
   ];
   return (
     <Shell title={t('How we measure success')} back="/more" nav={false}>
-      <div className="note">{t('Measured on orders you create in this prototype. The sample orders are left out.')}</div>
-      {m && m.orders === 0 && <div className="empty">{t('Create an order and the numbers appear here.')}</div>}
+      <div className="note">{t('These numbers come from orders you create here. Sample orders aren\'t counted.')}</div>
+      {m && m.orders === 0 && <div className="empty">{t('Create an order and your numbers will show up here.')}</div>}
       {m && m.orders > 0 && (
         <>
           <section className="card col">

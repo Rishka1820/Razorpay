@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Icon, Shell, useApp } from '@/components/kit';
 import { OrderRow } from '@/components/order';
 import { usePoll } from '@/lib/client';
-import { BUCKET_ORDER, bucket } from '@/lib/model';
+import { BUCKET_ORDER, bucket, totalDues } from '@/lib/model';
 import { dayOf, inr, todayIST } from '@/lib/format';
 
 const TITLES = {
@@ -35,7 +35,7 @@ export default function Orders() {
   const groups = BUCKET_ORDER.map((b) => [b, filtered.filter((o) => bucket(o, today) === b)]).filter(([b, l]) => l.length && (tab === 'all' || TODAY_SET.includes(b)));
   const due = orders.filter((o) => ['overdue', 'today'].includes(bucket(o, today)));
   const dueAmt = due.reduce((a, o) => a + o.d.dueNow, 0);
-  const received = orders.flatMap((o) => o.payments).filter((p) => dayOf(p.at) === today).reduce((a, p) => a + p.amount, 0);
+  const dues = totalDues(orders);
 
   return (
     <Shell active="products" title={t('Orders')} back="/">
@@ -46,9 +46,9 @@ export default function Orders() {
           <div className="tiny muted">{t('{n} orders', { n: due.length })}</div>
         </div>
         <div className="card">
-          <div className="tiny muted">{t('Received today')}</div>
-          <div className="big" style={{ fontSize: 22, color: 'var(--ok)' }}>{inr(received)}</div>
-          <div className="tiny muted">{t('all payment types')}</div>
+          <div className="tiny muted">{t('Total dues')}</div>
+          <div className="big" style={{ fontSize: 22 }}>{inr(dues.amount)}</div>
+          <div className="tiny muted">{t('across {n} orders', { n: dues.count })}</div>
         </div>
       </div>
 
