@@ -21,7 +21,7 @@ html, body {
   margin: 0;
   background: #e9ebee;
   color: var(--ink);
-  font: 400 14px/20px 'Inter Variable', Inter, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+  font: 400 14px/20px 'TASA Orbiter Variable', 'TASA Orbiter', -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 a { color: inherit; text-decoration: none; }

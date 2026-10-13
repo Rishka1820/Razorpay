@@ -1,4 +1,4 @@
-import '@fontsource-variable/inter';
+import '@fontsource-variable/tasa-orbiter';
 import './globals.css';
 import { Providers } from '@/components/kit';
 
